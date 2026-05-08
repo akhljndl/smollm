@@ -6,8 +6,7 @@
 
 **A 53,000-parameter weight-shared transformer for SMILES generation, trained on ZINC-250K.**
 
-> Interactive demo: see `demo/`; verify the GitHub Pages custom-domain setting
-> before sharing a public URL.
+> Interactive demo coming soon!
 
 ## Install
 
