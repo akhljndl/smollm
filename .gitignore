@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Project artifacts
+data/
+checkpoints/
+results/
+runs/
+wandb/
+*.pt
+*.ckpt
+docs/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# Env files
+.env
+.env.local
+
+# Figures (kept local; results live on HF)
+figures/
+
+# Demo (separate deploy)
+demo/

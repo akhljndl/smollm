@@ -1,0 +1,28 @@
+[project]
+name = "smollm"
+version = "0.1.0"
+description = "A 53K-parameter weight-shared transformer for SMILES generation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{name = "Akhil Jindal", email = "akhil@akhiljindal.com"}]
+dependencies = [
+    "torch>=2.1",
+    "rdkit>=2024.3",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "tqdm>=4.65",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+fcd = ["fcd"]
+wandb = ["wandb", "python-dotenv"]
+analyze = ["scikit-learn>=1.4"]
+
+[project.urls]
+Repository = "https://github.com/akhljndl/smollm"
+"Hugging Face" = "https://huggingface.co/akhljndl/smollm"
+
+[tool.setuptools.packages.find]
+include = ["smollm*"]
