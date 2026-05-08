@@ -7,11 +7,11 @@ brackets-then-rings-then-valence ordering inside the working x8 model.
 
 Usage:
     python analyze/per_pass_readout.py \
-        --checkpoint checkpoints/ws-e128-x8.pt \
+        --checkpoint checkpoints/ws-206k.pt \
         --device cuda
 
     python analyze/per_pass_readout.py \
-        --checkpoint checkpoints/ws-e64-x8.pt \
+        --checkpoint checkpoints/ws-53k.pt \
         --n-generate 500 --device cpu
 """
 
@@ -203,7 +203,7 @@ def generate(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Per-pass readout head experiment")
-    parser.add_argument("--checkpoint", required=True, help="Path to ws-eN-x8 checkpoint")
+    parser.add_argument("--checkpoint", required=True, help="Path to weight-shared checkpoint (ws-53k, ws-206k, etc.)")
     parser.add_argument("--n-generate", type=int, default=500, help="Molecules per pass")
     parser.add_argument("--epochs", type=int, default=5, help="Readout head training epochs")
     parser.add_argument("--lr", type=float, default=1e-3, help="Readout head learning rate")

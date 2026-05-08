@@ -7,10 +7,10 @@ for bracket matching, ring closure, and valence checking.
 
 Usage:
     python analyze/causal_ablation.py \
-        --checkpoint checkpoints/ws-e128-x8.pt
+        --checkpoint checkpoints/ws-206k.pt
 
     python analyze/causal_ablation.py \
-        --checkpoint checkpoints/ws-e128-x8.pt \
+        --checkpoint checkpoints/ws-206k.pt \
         --n 200 --passes 1,2,4,8
 """
 

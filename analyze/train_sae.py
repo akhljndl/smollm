@@ -6,7 +6,7 @@ specific chemical concepts (brackets, rings, atoms, valence-related depth).
 
 Usage:
     python analyze/train_sae.py \
-        --checkpoint checkpoints/ws-e128-x8.pt \
+        --checkpoint checkpoints/ws-206k.pt \
         --n-smiles 2000
 """
 

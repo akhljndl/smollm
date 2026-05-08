@@ -9,10 +9,10 @@ This directly shows what chemistry the shared block learns at each pass.
 
 Usage:
     python analyze/truncated_generation.py \
-        --checkpoint checkpoints/ws-e128-x8.pt
+        --checkpoint checkpoints/ws-206k.pt
 
     python analyze/truncated_generation.py \
-        --checkpoint checkpoints/ws-e64-x8.pt \
+        --checkpoint checkpoints/ws-53k.pt \
         --n 500
 """
 

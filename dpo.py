@@ -8,8 +8,8 @@ Note: in our experiments DPO consistently *hurt* both validity and FCD —
 this script is included as a robustness check, not a recommended pipeline.
 
 Examples:
-    python dpo.py --checkpoint checkpoints/ws-e128-x8-s42.pt
-    python dpo.py --checkpoint checkpoints/ws-e64-x8-s42.pt --beta 0.1 --epochs 5
+    python dpo.py --checkpoint checkpoints/ws-206k-s42.pt
+    python dpo.py --checkpoint checkpoints/ws-53k-s42.pt --beta 0.1 --epochs 5
 """
 
 from __future__ import annotations

@@ -9,7 +9,7 @@ import torch.nn.functional as F
 
 @dataclass
 class TransformerConfig:
-    vocab_size: int = 50
+    vocab_size: int = 65
     block_size: int = 128
     n_layer: int = 6
     n_head: int = 6

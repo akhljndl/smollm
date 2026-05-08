@@ -1,10 +1,10 @@
 """Train a SMILES generator from scratch.
 
 Examples:
-    python train.py --config ws-e64-x8 --seed 42         # WS-53K headline (~95% validity)
-    python train.py --config ws-e128-x8 --seed 42        # WS-206K headline (~98% validity)
+    python train.py --config ws-53k --seed 42            # WS headline (~95% validity)
+    python train.py --config ws-206k --seed 42           # WS headline (~98% validity)
     python train.py --config L2H2E144 --seed 42          # GPT-527K vanilla baseline
-    python train.py --config GRU-53K --seed 42 --no-amp  # GRU baseline (AMP off for stability)
+    python train.py --config gru-53k --seed 42 --no-amp  # GRU baseline (AMP off for stability)
 
 The script:
     1. Downloads ZINC-250K (~22 MB) on first run.

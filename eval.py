@@ -4,8 +4,8 @@ Re-derives the 90% train split from --seed (matching train.py) so novelty and th
 train-split FCD reference reproduce exactly.
 
 Examples:
-    python eval.py --checkpoint checkpoints/ws-e64-x8-s42.pt
-    python eval.py --checkpoint checkpoints/ws-e128-x8-s42.pt --n 10000
+    python eval.py --checkpoint checkpoints/ws-53k-s42.pt
+    python eval.py --checkpoint checkpoints/ws-206k-s42.pt --n 10000
 """
 
 from __future__ import annotations

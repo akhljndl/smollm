@@ -14,12 +14,12 @@ Methodologist fixes (v2):
 Usage:
     # Single model, 3 seeds:
     python analyze/attention.py \
-        --checkpoint checkpoints/sub100k/ws-e128-x8.pt \
+        --checkpoint checkpoints/sub100k/ws-206k.pt \
         --n-smiles 500 --seeds 42,123,456
 
     # With null baseline (random init):
     python analyze/attention.py \
-        --checkpoint checkpoints/sub100k/ws-e128-x8.pt \
+        --checkpoint checkpoints/sub100k/ws-206k.pt \
         --n-smiles 500 --seeds 42,123,456 --null-baseline
 """
 

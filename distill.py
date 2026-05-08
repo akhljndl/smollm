@@ -1,10 +1,10 @@
 """Curriculum + knowledge-distillation training.
 
 Examples:
-    python distill.py --config ws-e64-x8 --teacher checkpoints/ws-e128-x8-s42.pt
-    python distill.py --config ws-e64-x8 --teacher <ckpt> --alpha 0.3 --temperature 3
-    python distill.py --config ws-e64-x8 --teacher <ckpt> --no-curriculum
-    python distill.py --config ws-e64-x8 --teacher <ckpt> --no-distill
+    python distill.py --config ws-53k --teacher checkpoints/ws-206k-s42.pt
+    python distill.py --config ws-53k --teacher <ckpt> --alpha 0.3 --temperature 3
+    python distill.py --config ws-53k --teacher <ckpt> --no-curriculum
+    python distill.py --config ws-53k --teacher <ckpt> --no-distill
 """
 
 from __future__ import annotations

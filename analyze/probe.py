@@ -10,10 +10,10 @@ chemical grammar — direct evidence for iterative refinement.
 
 Usage:
     python analyze/probe.py \
-        --checkpoint checkpoints/ws-e128-x8.pt
+        --checkpoint checkpoints/ws-206k.pt
 
     python analyze/probe.py \
-        --checkpoint checkpoints/ws-e64-x8.pt \
+        --checkpoint checkpoints/ws-53k.pt \
         --n-smiles 200
 """
 
