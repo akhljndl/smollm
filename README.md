@@ -6,6 +6,8 @@
 
 **A 53,000-parameter weight-shared transformer for SMILES generation, trained on ZINC-250K.**
 
+By [Akhil Jindal](https://github.com/akhljndl) and [Harang Ju](https://github.com/harangju).
+
 > Interactive demo coming soon!
 
 ## Install
@@ -59,7 +61,7 @@ See `MANIFEST.md` on the HF repo for the full per-config / per-seed table.
 
 ```bibtex
 @misc{jindal2026smollm,
-  author = {Jindal, Akhil},
+  author = {Jindal, Akhil and Ju, Harang},
   title  = {SmolLM: Weight-Shared Transformers for SMILES Generation},
   year   = {2026},
   url    = {https://github.com/akhljndl/smollm},
