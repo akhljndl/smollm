@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-orange)](https://huggingface.co/akhljndl/smollm)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-5a5fd1)](https://akhljndl.github.io/smollm/)
 
 **A 53K-parameter weight-shared transformer for SMILES generation, trained on ZINC-250K.**
 
@@ -35,6 +36,10 @@ uv run python dpo.py     --checkpoint checkpoints/ws-53k-s42.pt                #
 `--config <name>` accepts any architecture in `smollm/configs.py:ARCHITECTURES` (10 configs: vanilla GPT scaling curve, weight-shared headlines, and GRU baselines).
 
 See `analyze/` for mechanistic analysis scripts.
+
+## Demo
+
+The interactive trace demo is hosted at [akhljndl.github.io/smollm](https://akhljndl.github.io/smollm/). It is a static GitHub Pages artifact built from `demo/`, with curated trace JSON and vendored browser RDKit assets for deterministic molecule rendering.
 
 ## Checkpoints
 

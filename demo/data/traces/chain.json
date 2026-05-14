@@ -1,0 +1,632 @@
+{
+  "prefix": "CCCC",
+  "passes": [
+    {
+      "pass_idx": 0,
+      "caption": "raw chain repeats",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "wait"
+        },
+        {
+          "label": "branching",
+          "state": "off"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "C",
+          "prob": 0.9489467740058899
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.01598639413714409
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.01562635600566864
+        },
+        {
+          "token": "N",
+          "prob": 0.003840576158836484
+        },
+        {
+          "token": "(",
+          "prob": 0.003364250296726823
+        },
+        {
+          "token": "O",
+          "prob": 0.0025980861391872168
+        },
+        {
+          "token": "c",
+          "prob": 0.0023496984504163265
+        },
+        {
+          "token": "1",
+          "prob": 0.0020782649517059326
+        },
+        {
+          "token": ")",
+          "prob": 0.0009414276573807001
+        },
+        {
+          "token": "[C@@]",
+          "prob": 0.000905533554032445
+        }
+      ],
+      "argmax_token": "C",
+      "completion": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 1,
+      "caption": "still all carbons",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "off"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "C",
+          "prob": 0.38514670729637146
+        },
+        {
+          "token": "1",
+          "prob": 0.260890394449234
+        },
+        {
+          "token": "(",
+          "prob": 0.12900479137897491
+        },
+        {
+          "token": "N",
+          "prob": 0.04944782704114914
+        },
+        {
+          "token": "O",
+          "prob": 0.04258730635046959
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.036217328161001205
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.03435347601771355
+        },
+        {
+          "token": "c",
+          "prob": 0.014585919678211212
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.008955434896051884
+        },
+        {
+          "token": ")",
+          "prob": 0.008066587150096893
+        }
+      ],
+      "argmax_token": "C",
+      "completion": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 2,
+      "caption": "model tries a ring",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "off"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "1",
+          "prob": 0.2602599561214447
+        },
+        {
+          "token": "C",
+          "prob": 0.25402769446372986
+        },
+        {
+          "token": "(",
+          "prob": 0.1933744251728058
+        },
+        {
+          "token": "N",
+          "prob": 0.07630148530006409
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.04252592474222183
+        },
+        {
+          "token": "O",
+          "prob": 0.04225260019302368
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.040493790060281754
+        },
+        {
+          "token": "c",
+          "prob": 0.03351443260908127
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.01428180281072855
+        },
+        {
+          "token": "S",
+          "prob": 0.00991432648152113
+        }
+      ],
+      "argmax_token": "1",
+      "completion": "CCCC111CCCCC111CCCCC111CCCCC111CCCCC111CCCCC111CCCCC1111CCCCC1111CCCCC1111CCCCC11111CCCCC11111cccccc",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 3,
+      "caption": "ring still open",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "wait"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.30949026346206665
+        },
+        {
+          "token": "C",
+          "prob": 0.18140052258968353
+        },
+        {
+          "token": "1",
+          "prob": 0.1360667645931244
+        },
+        {
+          "token": "N",
+          "prob": 0.10707347095012665
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.04192706570029259
+        },
+        {
+          "token": "c",
+          "prob": 0.040991030633449554
+        },
+        {
+          "token": "O",
+          "prob": 0.04060027748346329
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.040305186063051224
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.029049735516309738
+        },
+        {
+          "token": "n",
+          "prob": 0.024254174903035164
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "CCCC(C)(C)C(=O)NC(=O)NC(=O)NCCCCCCCCCC)CC11CCCCC1",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 4,
+      "caption": "branch instead — valid",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.31738385558128357
+        },
+        {
+          "token": "C",
+          "prob": 0.17862413823604584
+        },
+        {
+          "token": "N",
+          "prob": 0.15124982595443726
+        },
+        {
+          "token": "1",
+          "prob": 0.04839693009853363
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.04420628771185875
+        },
+        {
+          "token": "c",
+          "prob": 0.043500375002622604
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.04256189242005348
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.04010089859366417
+        },
+        {
+          "token": "n",
+          "prob": 0.03868129849433899
+        },
+        {
+          "token": "O",
+          "prob": 0.03864394873380661
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "CCCC(NC(=O)NCCCCC)=O",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 5,
+      "caption": "branching stabilizes",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.28789809346199036
+        },
+        {
+          "token": "N",
+          "prob": 0.18547238409519196
+        },
+        {
+          "token": "C",
+          "prob": 0.18347525596618652
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.047597210854291916
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.046660423278808594
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.045661959797143936
+        },
+        {
+          "token": "c",
+          "prob": 0.038926541805267334
+        },
+        {
+          "token": "1",
+          "prob": 0.037356406450271606
+        },
+        {
+          "token": "n",
+          "prob": 0.0372869037091732
+        },
+        {
+          "token": "O",
+          "prob": 0.032118234783411026
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "CCCC(NC(=O)NCCCC)CC(=O)Nc1ccc(cc1)C",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 6,
+      "caption": "molecule converges",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.25775691866874695
+        },
+        {
+          "token": "N",
+          "prob": 0.20383304357528687
+        },
+        {
+          "token": "C",
+          "prob": 0.1951785534620285
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.05165892839431763
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.051059018820524216
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.04933270439505577
+        },
+        {
+          "token": "c",
+          "prob": 0.03792416304349899
+        },
+        {
+          "token": "1",
+          "prob": 0.035684119910001755
+        },
+        {
+          "token": "n",
+          "prob": 0.033119942992925644
+        },
+        {
+          "token": "O",
+          "prob": 0.02867601253092289
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "CCCC(NC(=O)NCCCC)CC(=O)Nc1ccc(cc1)C",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 7,
+      "caption": "output locked in",
+      "checks": [
+        {
+          "label": "syntax",
+          "state": "on"
+        },
+        {
+          "label": "branching",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.23876619338989258
+        },
+        {
+          "token": "C",
+          "prob": 0.20445872843265533
+        },
+        {
+          "token": "N",
+          "prob": 0.20366646349430084
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.05607917532324791
+        },
+        {
+          "token": "[NH+]",
+          "prob": 0.053443729877471924
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.05336847901344299
+        },
+        {
+          "token": "c",
+          "prob": 0.03928611800074577
+        },
+        {
+          "token": "1",
+          "prob": 0.0392046682536602
+        },
+        {
+          "token": "n",
+          "prob": 0.030407998710870743
+        },
+        {
+          "token": "O",
+          "prob": 0.02657899633049965
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "CCCC(NC(=O)NCCCC)CC(=O)Nc1ccc(cc1)C",
+      "completion_valid": true
+    }
+  ],
+  "features": [
+    {
+      "slug": "is_bracket",
+      "label": "bracket token",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "strengths": [
+        0.964,
+        0.97,
+        0.944,
+        0.622,
+        0.81,
+        0.628,
+        0.64,
+        0.538
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "is_ring_digit",
+      "label": "ring digit",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "strengths": [
+        0.894,
+        0.929,
+        0.987,
+        0.541,
+        0.708,
+        0.477,
+        0.557,
+        0.553
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "is_atom",
+      "label": "atom token",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "strengths": [
+        0.764,
+        0.832,
+        0.632,
+        0.705,
+        0.728,
+        0.652,
+        0.669,
+        0.63
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "bracket_depth",
+      "label": "branch depth",
+      "category": "structure",
+      "active_passes": [
+        1,
+        3,
+        7
+      ],
+      "strengths": [
+        0.487,
+        0.644,
+        0.482,
+        0.615,
+        0.568,
+        0.527,
+        0.489,
+        0.642
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "ring_state",
+      "label": "ring state",
+      "category": "structure",
+      "active_passes": [
+        4
+      ],
+      "strengths": [
+        0.413,
+        0.488,
+        0.539,
+        0.478,
+        0.651,
+        0.487,
+        0.576,
+        0.468
+      ],
+      "source": "smollm-demo-traces-v1"
+    }
+  ],
+  "slug": "chain",
+  "caption": "unbranched alkane — no structural constraints",
+  "target_smiles": "CCCCC",
+  "sae_source": {
+    "version": "smollm-demo-traces-v1",
+    "source": "demo/data/traces",
+    "threshold": 0.6
+  }
+}

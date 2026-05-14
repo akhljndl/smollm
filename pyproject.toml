@@ -5,7 +5,10 @@ description = "A 53K-parameter weight-shared transformer for SMILES generation."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{name = "Akhil Jindal", email = "akhil@akhiljindal.com"}]
+authors = [
+    {name = "Akhil Jindal", email = "akhil@moku.gg"},
+    {name = "Harang Ju", email = "harang@jhu.edu"},
+]
 dependencies = [
     "torch>=2.1",
     "rdkit>=2024.3",

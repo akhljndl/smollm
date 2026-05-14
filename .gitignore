@@ -14,6 +14,12 @@ dist/
 
 # Project artifacts
 data/
+!demo/data/
+demo/data/*
+!demo/data/traces/
+!demo/data/traces/*.json
+demo/data/manifest.json
+demo/data/sae_labels.json
 checkpoints/
 results/
 runs/
@@ -35,6 +41,3 @@ docs/
 
 # Figures (kept local; results live on HF)
 figures/
-
-# Demo (separate deploy)
-demo/
