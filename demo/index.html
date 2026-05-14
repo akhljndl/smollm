@@ -83,6 +83,7 @@
 
   button {
     cursor: pointer;
+    touch-action: manipulation;
   }
 
   .page {
@@ -987,7 +988,14 @@
     }
 
     .qa-card {
-      grid-template-columns: 88px minmax(0, 1fr);
+      grid-template-columns: 102px minmax(0, 1fr);
+      gap: 8px 12px;
+      padding-bottom: 12px;
+    }
+
+    .qa-label {
+      white-space: nowrap;
+      letter-spacing: 0.09em;
     }
 
     .smiles-prefix,
@@ -996,6 +1004,10 @@
     }
 
     .rollout-rest {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
       line-height: 1.35;
     }
 
@@ -1023,24 +1035,142 @@
     }
 
     .mol-panel {
-      min-height: 310px;
+      min-height: 0;
+    }
+
+    .mol-svg {
+      min-height: clamp(150px, 30vh, 224px);
+    }
+
+    .mol-svg svg {
+      width: min(100%, 360px);
+      height: clamp(150px, 30vh, 224px);
     }
 
     .controls {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 6px;
+      margin-top: 12px;
     }
 
     .controls button {
       flex: 1;
       min-width: 0;
-      min-height: 36px;
+      min-height: 42px;
       padding: 0 8px;
+    }
+
+    #prevBtn { order: 1; }
+    #playBtn { order: 2; }
+    #nextBtn { order: 3; }
+    #speedBtn { order: 4; }
+
+    .phase-band {
+      height: 34px;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+    }
+
+    .range-wrap {
+      --thumb-size: 28px;
+      height: 44px;
+    }
+
+    .logit-row {
+      grid-template-columns: minmax(42px, 68px) minmax(0, 1fr) 42px;
+      gap: 8px;
     }
 
     .chips {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+  }
+
+  @media (max-width: 899px) and (max-height: 520px) {
+    .page {
+      height: auto;
+      min-height: 100dvh;
+      width: min(100% - 32px, 820px);
+      padding: 10px 0 14px;
+      gap: 8px;
+      overflow: visible;
+    }
+
+    .hero {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 8px 18px;
+    }
+
+    .hero-links {
+      order: 0;
+      justify-self: end;
+      padding-top: 2px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4.1vw, 34px);
+    }
+
+    .model-meta {
+      max-width: 72ch;
+      font-size: 9px;
+    }
+
+    .figure {
+      min-height: 0;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
+      gap: 12px;
+      align-items: start;
+      overflow: visible;
+    }
+
+    .stage,
+    .readout {
+      min-height: 0;
+      max-height: none;
+      overflow: visible;
+    }
+
+    .prefix-wrap {
+      min-height: 36px;
+      font-size: clamp(36px, 5.2vw, 48px);
+    }
+
+    .qa-card {
+      grid-template-columns: 98px minmax(0, 1fr);
+      padding-top: 6px;
+      padding-bottom: 8px;
+    }
+
+    .mol-svg {
+      min-height: 132px;
+    }
+
+    .mol-svg svg {
+      height: 132px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .page {
+      width: calc(100% - 20px);
+    }
+
+    .qa-card {
+      grid-template-columns: 94px minmax(0, 1fr);
+      gap: 7px 9px;
+    }
+
+    .qa-label {
+      letter-spacing: 0.06em;
+    }
+
+    .phase-band {
+      font-size: 9px;
+      letter-spacing: 0.04em;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1754,9 +1884,12 @@
     }
 
     text(els.prefixValue, prefix);
+    els.prefixValue.title = prefix;
     text(els.nextTokenValue, nextToken || "-");
+    els.nextTokenValue.title = nextToken || "";
     els.completionBridge.classList.toggle("empty", !rest);
     text(els.completionBridge, rest || "no additional tokens");
+    els.completionBridge.title = rest || "no additional tokens";
   }
 
   function renderLogits(pass) {
