@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SMoLlm logo mark">
+  <rect width="512" height="512" fill="#f3ecdc"/>
+
+  <g fill="none" stroke="#5a5fd1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="256" cy="196" rx="154" ry="40"/>
+    <ellipse cx="256" cy="256" rx="154" ry="40"/>
+    <ellipse cx="256" cy="316" rx="154" ry="40"/>
+  </g>
+
+  <rect x="190" y="92" width="132" height="328" rx="34" ry="34"
+        fill="none" stroke="#13110c" stroke-width="28"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

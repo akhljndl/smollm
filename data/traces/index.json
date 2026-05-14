@@ -1,0 +1,34 @@
+{
+  "examples": [
+    {
+      "slug": "aromatic",
+      "prefix": "c1ccccc",
+      "caption": "benzene one token from closure \u2014 validity flips mid-trace"
+    },
+    {
+      "slug": "bracket",
+      "prefix": "c1ccc(",
+      "caption": "branch opens inside an aromatic ring"
+    },
+    {
+      "slug": "ring",
+      "prefix": "C1CCC",
+      "caption": "carbocycle waiting for its closing digit"
+    },
+    {
+      "slug": "valence",
+      "prefix": "CCCC=",
+      "caption": "alkene tail \u2014 needs a partner atom"
+    },
+    {
+      "slug": "chain",
+      "prefix": "CCCC",
+      "caption": "unbranched alkane \u2014 no structural constraints"
+    },
+    {
+      "slug": "branch",
+      "prefix": "CC(C)",
+      "caption": "branching carbon that has just closed"
+    }
+  ]
+}

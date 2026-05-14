@@ -1,0 +1,632 @@
+{
+  "prefix": "c1ccc(",
+  "passes": [
+    {
+      "pass_idx": 0,
+      "caption": "open bracket repeats",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "off"
+        },
+        {
+          "label": "ring closure",
+          "state": "off"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.9991637468338013
+        },
+        {
+          "token": "c",
+          "prob": 0.0003836308897007257
+        },
+        {
+          "token": "2",
+          "prob": 0.00017756996385287493
+        },
+        {
+          "token": "1",
+          "prob": 0.00010072306758956984
+        },
+        {
+          "token": "C",
+          "prob": 6.643004599027336e-05
+        },
+        {
+          "token": "=",
+          "prob": 3.0320927180582657e-05
+        },
+        {
+          "token": "n",
+          "prob": 2.172712265746668e-05
+        },
+        {
+          "token": ")",
+          "prob": 1.3284601664054208e-05
+        },
+        {
+          "token": "3",
+          "prob": 6.5803637880890165e-06
+        },
+        {
+          "token": "S",
+          "prob": 5.374312877393095e-06
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "c1ccc(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 1,
+      "caption": "still stuck on (",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "off"
+        },
+        {
+          "label": "ring closure",
+          "state": "off"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "(",
+          "prob": 0.8952546715736389
+        },
+        {
+          "token": "c",
+          "prob": 0.07709323614835739
+        },
+        {
+          "token": "C",
+          "prob": 0.012716090306639671
+        },
+        {
+          "token": "n",
+          "prob": 0.0030756276100873947
+        },
+        {
+          "token": "S",
+          "prob": 0.0020962068811059
+        },
+        {
+          "token": "2",
+          "prob": 0.0014718160964548588
+        },
+        {
+          "token": "N",
+          "prob": 0.001342764007858932
+        },
+        {
+          "token": "=",
+          "prob": 0.0011808342533186078
+        },
+        {
+          "token": "O",
+          "prob": 0.0008618763531558216
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.0006601886125281453
+        }
+      ],
+      "argmax_token": "(",
+      "completion": "c1ccc(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 2,
+      "caption": "ring tries to close",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "off"
+        },
+        {
+          "label": "ring closure",
+          "state": "wait"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.5683056712150574
+        },
+        {
+          "token": "C",
+          "prob": 0.14033859968185425
+        },
+        {
+          "token": "(",
+          "prob": 0.08323028683662415
+        },
+        {
+          "token": "N",
+          "prob": 0.04323529079556465
+        },
+        {
+          "token": "S",
+          "prob": 0.031094513833522797
+        },
+        {
+          "token": "O",
+          "prob": 0.025156978517770767
+        },
+        {
+          "token": "n",
+          "prob": 0.024240273982286453
+        },
+        {
+          "token": "Cl",
+          "prob": 0.013685785233974457
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.010202266275882721
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.009862790815532207
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 3,
+      "caption": "bracket depth grows",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "wait"
+        },
+        {
+          "label": "ring closure",
+          "state": "wait"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.5561973452568054
+        },
+        {
+          "token": "C",
+          "prob": 0.1576823741197586
+        },
+        {
+          "token": "N",
+          "prob": 0.06753218919038773
+        },
+        {
+          "token": "O",
+          "prob": 0.04197131469845772
+        },
+        {
+          "token": "S",
+          "prob": 0.03206053003668785
+        },
+        {
+          "token": "-",
+          "prob": 0.02216283231973648
+        },
+        {
+          "token": "n",
+          "prob": 0.01980970986187458
+        },
+        {
+          "token": "Cl",
+          "prob": 0.01765664480626583
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.015514693222939968
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.014990991912782192
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(=OOOC)NC(=O)NCCCCCCCCCC)CCCCC1",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 4,
+      "caption": "ring ok, brackets off",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "wait"
+        },
+        {
+          "label": "ring closure",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "off"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.5181805491447449
+        },
+        {
+          "token": "C",
+          "prob": 0.16145147383213043
+        },
+        {
+          "token": "N",
+          "prob": 0.07649116963148117
+        },
+        {
+          "token": "O",
+          "prob": 0.04899028688669205
+        },
+        {
+          "token": "-",
+          "prob": 0.032788340002298355
+        },
+        {
+          "token": "S",
+          "prob": 0.028499318286776543
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.019528713077306747
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.01894564926624298
+        },
+        {
+          "token": "Cl",
+          "prob": 0.018435150384902954
+        },
+        {
+          "token": "F",
+          "prob": 0.017858361825346947
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(=O)N1CCN(CC1)C(=O)NCCCCCC)CC",
+      "completion_valid": false
+    },
+    {
+      "pass_idx": 5,
+      "caption": "molecule becomes valid",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "on"
+        },
+        {
+          "label": "ring closure",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.4959098696708679
+        },
+        {
+          "token": "C",
+          "prob": 0.16421855986118317
+        },
+        {
+          "token": "N",
+          "prob": 0.07809042930603027
+        },
+        {
+          "token": "O",
+          "prob": 0.051755234599113464
+        },
+        {
+          "token": "-",
+          "prob": 0.041208308190107346
+        },
+        {
+          "token": "S",
+          "prob": 0.02545994147658348
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.02274259738624096
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.02215263992547989
+        },
+        {
+          "token": "F",
+          "prob": 0.020700888708233833
+        },
+        {
+          "token": "Cl",
+          "prob": 0.018010688945651054
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(=O)N1CCN(CC1)C(=O)NCc1ccc(cc1)C(=O)NCCCC",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 6,
+      "caption": "brackets balanced",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "on"
+        },
+        {
+          "label": "ring closure",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.48311880230903625
+        },
+        {
+          "token": "C",
+          "prob": 0.1669827401638031
+        },
+        {
+          "token": "N",
+          "prob": 0.07667548209428787
+        },
+        {
+          "token": "O",
+          "prob": 0.05142586678266525
+        },
+        {
+          "token": "-",
+          "prob": 0.04760235175490379
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.02541819028556347
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.024857791140675545
+        },
+        {
+          "token": "S",
+          "prob": 0.02288931794464588
+        },
+        {
+          "token": "F",
+          "prob": 0.022213546559214592
+        },
+        {
+          "token": "Cl",
+          "prob": 0.0174338910728693
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(=O)N1CCN(CC1)C(=O)CCC(=O)Nc1ccc(cc1)C",
+      "completion_valid": true
+    },
+    {
+      "pass_idx": 7,
+      "caption": "output stabilizes",
+      "checks": [
+        {
+          "label": "bracket balance",
+          "state": "on"
+        },
+        {
+          "label": "ring closure",
+          "state": "on"
+        },
+        {
+          "label": "molecule",
+          "state": "on"
+        }
+      ],
+      "top_logits": [
+        {
+          "token": "c",
+          "prob": 0.4751347303390503
+        },
+        {
+          "token": "C",
+          "prob": 0.17021988332271576
+        },
+        {
+          "token": "N",
+          "prob": 0.07394979894161224
+        },
+        {
+          "token": "-",
+          "prob": 0.052513331174850464
+        },
+        {
+          "token": "O",
+          "prob": 0.04940462484955788
+        },
+        {
+          "token": "[C@@H]",
+          "prob": 0.027803311124444008
+        },
+        {
+          "token": "[C@H]",
+          "prob": 0.02729245275259018
+        },
+        {
+          "token": "F",
+          "prob": 0.02281763218343258
+        },
+        {
+          "token": "S",
+          "prob": 0.02074699103832245
+        },
+        {
+          "token": "Cl",
+          "prob": 0.016878077760338783
+        }
+      ],
+      "argmax_token": "c",
+      "completion": "c1ccc(cc1)C(=O)N1CCN(CC1)C(=O)CCC(=O)Nc1ccc(cc1)C",
+      "completion_valid": true
+    }
+  ],
+  "features": [
+    {
+      "slug": "is_bracket",
+      "label": "bracket token",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "strengths": [
+        0.964,
+        0.97,
+        0.944,
+        0.622,
+        0.81,
+        0.628,
+        0.64,
+        0.538
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "is_ring_digit",
+      "label": "ring digit",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "strengths": [
+        0.894,
+        0.929,
+        0.987,
+        0.541,
+        0.708,
+        0.477,
+        0.557,
+        0.553
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "is_atom",
+      "label": "atom token",
+      "category": "syntax",
+      "active_passes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "strengths": [
+        0.764,
+        0.832,
+        0.632,
+        0.705,
+        0.728,
+        0.652,
+        0.669,
+        0.63
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "bracket_depth",
+      "label": "branch depth",
+      "category": "structure",
+      "active_passes": [
+        1,
+        3,
+        7
+      ],
+      "strengths": [
+        0.487,
+        0.644,
+        0.482,
+        0.615,
+        0.568,
+        0.527,
+        0.489,
+        0.642
+      ],
+      "source": "smollm-demo-traces-v1"
+    },
+    {
+      "slug": "ring_state",
+      "label": "ring state",
+      "category": "structure",
+      "active_passes": [
+        4
+      ],
+      "strengths": [
+        0.413,
+        0.488,
+        0.539,
+        0.478,
+        0.651,
+        0.487,
+        0.576,
+        0.468
+      ],
+      "source": "smollm-demo-traces-v1"
+    }
+  ],
+  "slug": "bracket",
+  "caption": "branch opens inside an aromatic ring",
+  "target_smiles": "c1ccc(C)cc1",
+  "sae_source": {
+    "version": "smollm-demo-traces-v1",
+    "source": "demo/data/traces",
+    "threshold": 0.6
+  }
+}

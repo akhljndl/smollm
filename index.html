@@ -1,0 +1,2038 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SMoLlm</title>
+<meta name="description" content="SMoLlm is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
+<link rel="canonical" href="https://akhljndl.github.io/smollm/" />
+<meta property="og:title" content="SMoLlm" />
+<meta property="og:description" content="SMoLlm is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://akhljndl.github.io/smollm/" />
+<meta property="og:image" content="https://akhljndl.github.io/smollm/og-image.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Editorial molecular grammar diagram for SMoLlm, showing repeated transformer passes and molecular token traces." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://akhljndl.github.io/smollm/og-image.png" />
+<meta name="twitter:image:alt" content="Editorial molecular grammar diagram for SMoLlm, showing repeated transformer passes and molecular token traces." />
+<meta name="theme-color" content="#f3ecdc" />
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<link rel="preload" href="./fonts/DepartureMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+<script src="./vendor/rdkit/RDKit_minimal.js"></script>
+<style>
+  @font-face {
+    font-family: "Departure Mono";
+    src: url("./fonts/DepartureMono-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --paper: #f3ecdc;
+    --paper-2: #fbf8ee;
+    --ink: #13110c;
+    --soft: #453f35;
+    --muted: #6f675a;
+    --faint: #b9ae9d;
+    --hair: rgba(19, 17, 12, 0.24);
+    --accent: #5a5fd1;
+    --syntax: #c45a4c;
+    --structure: #3d917d;
+    --semantics: #7567c5;
+    --good: #2f8060;
+    --bad: #a64d40;
+    --mark-height: clamp(18px, 2.15vh, 26px);
+    --micro-type: clamp(10px, 0.66vw, 13px);
+    --label-type: clamp(11px, 0.76vw, 15px);
+    --body-type: clamp(13px, 0.92vw, 17px);
+    --serif: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: "Departure Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    min-height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-variant-numeric: lining-nums tabular-nums;
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.46), transparent 34rem),
+      linear-gradient(90deg, rgba(19, 17, 12, 0.032) 1px, transparent 1px) 0 0 / 28px 28px,
+      linear-gradient(0deg, rgba(19, 17, 12, 0.026) 1px, transparent 1px) 0 0 / 28px 28px,
+      var(--paper);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button, input {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  .page {
+    width: min(1920px, calc(100vw - 48px));
+    height: 100dvh;
+    margin: 0 auto;
+    padding: clamp(10px, 1.4vh, 18px) 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(10px, 1.4vh, 18px);
+    overflow: hidden;
+  }
+
+  .hero {
+    min-height: clamp(72px, 9vh, 118px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    align-items: end;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(38px, 4vw, 76px);
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .title-accent {
+    color: var(--accent);
+  }
+
+  .model-meta {
+    margin-top: 6px;
+    font-family: var(--serif);
+    font-size: clamp(10px, 0.68vw, 13px);
+    line-height: 1.15;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero-links {
+    position: absolute;
+    top: clamp(10px, 1.4vh, 18px);
+    right: max(24px, calc((100vw - min(1920px, calc(100vw - 48px))) / 2));
+    display: flex;
+    align-items: center;
+    gap: 0;
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .hero-links a + a::before {
+    content: "|";
+    margin: 0 8px;
+    color: var(--faint);
+  }
+
+  .hero-link {
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 0.24em;
+  }
+
+  .hero-link:hover,
+  .hero-link:focus-visible {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .figure {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(520px, clamp(560px, 38vw, 760px));
+    gap: clamp(18px, 1.8vw, 34px);
+    overflow: hidden;
+  }
+
+  .stage,
+  .readout {
+    height: 100%;
+    padding: clamp(10px, 1vw, 18px);
+    background:
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) left top / 14px 1px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) left top / 1px 14px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) right top / 14px 1px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) right top / 1px 14px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) left bottom / 14px 1px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) left bottom / 1px 14px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) right bottom / 14px 1px no-repeat,
+      linear-gradient(rgba(19, 17, 12, 0.3), rgba(19, 17, 12, 0.3)) right bottom / 1px 14px no-repeat;
+  }
+
+  .stage {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(8px, 1vh, 14px);
+    overflow: hidden;
+  }
+
+  .prefix-wrap {
+    min-height: 44px;
+    display: flex;
+    align-items: end;
+    gap: 0;
+    border-bottom: 1px dotted rgba(19, 17, 12, 0.34);
+    font-size: clamp(48px, 5.2vw, 104px);
+    line-height: 0.95;
+    overflow-wrap: anywhere;
+  }
+
+  .prefix-text {
+    color: var(--ink);
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.08em;
+    height: 0.92em;
+    margin: 0 0.04em;
+    background: var(--ink);
+    transform: translateY(0.08em);
+    animation: cursorBlink 1s steps(2, end) infinite;
+  }
+
+  .ghost-token {
+    color: var(--accent);
+  }
+
+  @keyframes cursorBlink {
+    50% { opacity: 0; }
+  }
+
+  .message {
+    min-height: 30px;
+    display: grid;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid rgba(166, 77, 64, 0.28);
+    background: rgba(166, 77, 64, 0.08);
+    color: var(--soft);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .message[hidden] { display: none; }
+
+  .mol-panel {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: clamp(8px, 1vh, 14px);
+    padding: clamp(10px, 1.2vh, 16px) clamp(8px, 0.8vw, 14px) clamp(6px, 0.8vh, 10px);
+    border-left: 3px solid transparent;
+    transition: border-color 240ms ease;
+    overflow: hidden;
+  }
+
+  .mol-panel.state-invalid {
+    border-left-color: color-mix(in srgb, var(--bad) 32%, transparent);
+  }
+
+  .mol-panel.state-valid {
+    border-left-color: color-mix(in srgb, var(--good) 38%, transparent);
+  }
+
+  .mol-panel.just-valid {
+    animation: validPulse 620ms ease-out;
+  }
+
+  @keyframes validPulse {
+    0%   { background: color-mix(in srgb, var(--good) 14%, transparent); }
+    100% { background: transparent; }
+  }
+
+  .qa-card {
+    display: grid;
+    grid-template-columns: clamp(92px, 7vw, 128px) minmax(0, 1fr);
+    gap: clamp(6px, 0.7vh, 10px) clamp(14px, 1.2vw, 22px);
+    align-items: center;
+    padding: clamp(7px, 0.9vh, 12px) 0 clamp(10px, 1vh, 15px);
+    border-bottom: 1px dotted rgba(19, 17, 12, 0.18);
+  }
+
+  .qa-row {
+    display: contents;
+  }
+
+  .qa-label {
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .qa-value {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: var(--body-type);
+    line-height: 1.25;
+  }
+
+  .smiles-prefix,
+  .next-token-value {
+    font-family: var(--serif);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .next-token-value {
+    justify-self: start;
+    display: inline-block;
+    color: var(--accent);
+    font-weight: 500;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+  }
+
+  .rollout-rest {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    font-family: var(--serif);
+    font-size: var(--body-type);
+    line-height: 1.25;
+    color: var(--soft);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .rollout-rest.empty {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 100%;
+    color: var(--bad);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .status-pill .dot {
+    width: clamp(7px, 0.5vw, 10px);
+    height: clamp(7px, 0.5vw, 10px);
+    background: var(--bad);
+  }
+
+  .status-pill.valid {
+    color: var(--good);
+  }
+
+  .status-pill.valid .dot {
+    background: var(--good);
+  }
+
+  .mol-svg {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: visible;
+  }
+
+  .mol-svg svg {
+    width: min(100%, 980px);
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    overflow: visible;
+    background: transparent !important;
+  }
+
+  .fallback-smiles {
+    display: grid;
+    gap: 12px;
+    place-items: center;
+    max-width: 100%;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .fallback-smiles.minimal {
+    color: var(--faint);
+  }
+
+  .fallback-smiles code {
+    display: block;
+    max-width: min(100%, 64ch);
+    overflow-wrap: anywhere;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(13px, 1.5vw, 19px);
+    line-height: 1.25;
+  }
+
+  .fallback-smiles span {
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .trace-select {
+    min-width: 0;
+    display: grid;
+    gap: clamp(8px, 0.9vh, 12px);
+  }
+
+  .chips-label {
+    color: var(--muted);
+    font-size: var(--label-type);
+    line-height: 1;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(6px, 0.6vw, 10px);
+  }
+
+  .chip {
+    display: grid;
+    place-items: center;
+    min-height: clamp(28px, 3.2vh, 38px);
+    width: 100%;
+    padding: 0 9px;
+    border: 1px solid var(--hair);
+    background: transparent;
+    color: var(--muted);
+    font-size: var(--label-type);
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .chip:hover {
+    border-color: var(--muted);
+    color: var(--ink);
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper-2);
+  }
+
+  .readout {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: clamp(12px, 1.45vh, 22px);
+    overflow: hidden;
+  }
+
+  .readout > section {
+    min-width: 0;
+    padding-bottom: clamp(10px, 1.15vh, 16px);
+    border-bottom: 1px dotted rgba(19, 17, 12, 0.2);
+  }
+
+  .readout > section:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: clamp(9px, 0.8vw, 14px);
+    margin: 0 0 clamp(8px, 0.9vh, 12px);
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--label-type);
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .section-label::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dotted rgba(19, 17, 12, 0.28);
+  }
+
+  .logits {
+    display: grid;
+    gap: clamp(5px, 0.55vh, 8px);
+  }
+
+  .logit-row {
+    display: grid;
+    grid-template-columns: minmax(58px, 92px) minmax(0, 1fr) 48px;
+    gap: clamp(10px, 0.9vw, 16px);
+    align-items: center;
+    min-height: var(--mark-height);
+    font-size: var(--body-type);
+  }
+
+  .logit-token {
+    min-width: 0;
+    overflow: visible;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: var(--label-type);
+    letter-spacing: 0;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .logit-token.long {
+    font-size: 9px;
+  }
+
+  .logit-track {
+    height: var(--mark-height);
+    background: rgba(19, 17, 12, 0.12);
+  }
+
+  .logit-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 260ms ease;
+  }
+
+  .logit-prob {
+    color: var(--muted);
+    font-family: var(--serif);
+    line-height: 1;
+    text-align: right;
+  }
+
+  .scrubber-section {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(112px, 0.72fr) repeat(8, minmax(0, 1fr));
+    grid-template-rows: auto auto auto auto auto;
+    gap: 0 clamp(7px, 0.7vw, 12px);
+  }
+
+  .pass-head {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: clamp(6px, 0.75vh, 10px);
+    font-family: var(--serif);
+    font-size: var(--label-type);
+    line-height: 1;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pass-head b {
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  .phase-band {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: 2fr 3fr 3fr;
+    height: clamp(32px, 3.7vh, 46px);
+    margin-bottom: 4px;
+    border: 1px solid var(--hair);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .phase-band span {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    border-right: 1px solid var(--hair);
+  }
+
+  .phase-band span:last-child { border-right: 0; }
+  .phase-band .syntax { box-shadow: inset 0 6px 0 var(--syntax); }
+  .phase-band .structure { box-shadow: inset 0 6px 0 var(--structure); }
+  .phase-band .semantics { box-shadow: inset 0 6px 0 var(--semantics); }
+
+  .range-wrap {
+    grid-column: 2 / -1;
+    position: relative;
+    --tick-pad: calc(100% / 16);
+    --thumb-size: clamp(20px, 1.35vw, 28px);
+    --pass-progress: 0;
+    height: clamp(32px, 3.8vh, 46px);
+  }
+
+  .range-wrap::before,
+  .range-wrap::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .range-wrap::before {
+    left: var(--tick-pad);
+    right: var(--tick-pad);
+    top: 50%;
+    height: 2px;
+    background: rgba(19, 17, 12, 0.54);
+    transform: translateY(-50%);
+  }
+
+  .range-wrap::after {
+    left: calc(var(--tick-pad) + (var(--pass-progress) * (100% - (2 * var(--tick-pad)))));
+    top: 50%;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border: 1px solid rgba(90, 95, 209, 0.3);
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 6px rgba(90, 95, 209, 0.12);
+    transform: translate(-50%, -50%);
+  }
+
+  input[type="range"] {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--tick-pad);
+    width: calc(100% - (2 * var(--tick-pad)));
+    margin: 0;
+    appearance: none;
+    background: transparent;
+    cursor: grab;
+  }
+
+  input[type="range"]:active {
+    cursor: grabbing;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    background: transparent;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    margin-top: calc((2px - var(--thumb-size)) / 2);
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 2px;
+    background: transparent;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  input[type="range"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 8px;
+  }
+
+  .tick-row {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    margin-top: 1px;
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .controls {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    align-self: start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(5px, 0.48vw, 8px);
+    margin-top: 0;
+    padding-block: 0;
+  }
+
+  .controls button {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    width: 100%;
+    min-height: clamp(28px, 3vh, 36px);
+    padding: 0;
+    border: 1px solid rgba(19, 17, 12, 0.22);
+    background: color-mix(in srgb, var(--paper-2) 54%, transparent);
+    color: var(--soft);
+    line-height: 1;
+    box-shadow: 0 1px 0 rgba(19, 17, 12, 0.08);
+    transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+  }
+
+  .controls button:hover,
+  .controls button:focus-visible {
+    border-color: var(--ink);
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+
+  .controls button:active {
+    transform: translateY(1px);
+  }
+
+  .control-icon {
+    display: block;
+    width: clamp(18px, 1.45vw, 24px);
+    height: clamp(18px, 1.45vw, 24px);
+  }
+
+  .control-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .caption {
+    grid-column: 1 / -1;
+    min-height: clamp(32px, 3.2vh, 42px);
+    margin-top: clamp(8px, 0.9vh, 12px);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(10px, 0.9vw, 16px);
+    align-items: center;
+    color: var(--soft);
+    font-size: var(--body-type);
+    line-height: 1.28;
+  }
+
+  .caption b {
+    color: var(--accent);
+    font-family: var(--serif);
+    font-size: var(--label-type);
+    line-height: 1;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .checks {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: clamp(7px, 0.65vw, 11px);
+    flex-wrap: wrap;
+    margin-top: clamp(4px, 0.6vh, 8px);
+  }
+
+  .checks span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .checks span::before {
+    content: "";
+    width: clamp(6px, 0.45vw, 9px);
+    height: clamp(6px, 0.45vw, 9px);
+    background: var(--faint);
+  }
+
+  .checks .on { color: var(--ink); }
+  .checks .on::before { background: var(--good); }
+  .checks .wait::before { background: #b99444; }
+
+  .feature-section {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    overflow: visible;
+  }
+
+  .pass-axis,
+  .feature-row {
+    display: grid;
+    grid-template-columns: minmax(112px, 0.72fr) repeat(8, minmax(0, 1fr));
+    gap: clamp(7px, 0.7vw, 12px);
+    align-items: center;
+  }
+
+  .pass-axis {
+    margin-bottom: clamp(5px, 0.65vh, 9px);
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .pass-axis span:first-child {
+    text-align: left;
+  }
+
+  .feature-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 14px;
+    margin: 0 0 clamp(8px, 0.9vh, 12px);
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: var(--micro-type);
+    line-height: 1;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .feature-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .feature-legend span::before {
+    content: "";
+    width: clamp(12px, 0.9vw, 18px);
+    height: clamp(8px, 0.7vw, 13px);
+    background: rgba(19, 17, 12, 0.28);
+  }
+
+  .feature-legend .syntax::before { background: color-mix(in srgb, var(--syntax) 68%, transparent); }
+  .feature-legend .structure::before { background: color-mix(in srgb, var(--structure) 68%, transparent); }
+  .feature-legend .semantics::before { background: color-mix(in srgb, var(--semantics) 68%, transparent); }
+
+  .features {
+    display: grid;
+    align-content: start;
+    gap: clamp(5px, 0.62vh, 9px);
+    min-height: 0;
+    padding-bottom: clamp(6px, 0.8vh, 10px);
+  }
+
+  .feature-row {
+    min-height: clamp(24px, 2.8vh, 36px);
+  }
+
+  .feature-name {
+    min-width: 0;
+    overflow: visible;
+    text-overflow: ellipsis;
+    color: var(--soft);
+    font-family: var(--serif);
+    font-size: var(--body-type);
+    line-height: 1.22;
+    white-space: nowrap;
+  }
+
+  .feature-name.syntax { color: var(--syntax); }
+  .feature-name.structure { color: var(--structure); }
+  .feature-name.semantics { color: var(--semantics); }
+
+  .feature-cell {
+    height: var(--mark-height);
+    background: rgba(19, 17, 12, 0.085);
+    position: relative;
+  }
+
+  .feature-cell.current {
+    background:
+      linear-gradient(rgba(90, 95, 209, 0.12), rgba(90, 95, 209, 0.12)),
+      rgba(19, 17, 12, 0.085);
+    box-shadow:
+      inset 0 0 0 1px rgba(90, 95, 209, 0.68),
+      0 0 0 2px rgba(90, 95, 209, 0.1);
+  }
+
+  .feature-cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: background 220ms ease, opacity 220ms ease;
+  }
+
+  .feature-cell.active::after {
+    background: rgba(19, 17, 12, 0.28);
+    opacity: var(--heat, 0.82);
+  }
+
+  .feature-cell.syntax::after { background: var(--syntax); }
+  .feature-cell.structure::after { background: var(--structure); }
+  .feature-cell.semantics::after { background: var(--semantics); }
+
+  @media (min-width: 900px) and (min-height: 700px) {
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .page {
+      width: min(1160px, calc(100vw - 28px));
+      padding-top: 14px;
+      gap: 8px;
+    }
+
+    .hero {
+      min-height: 62px;
+      gap: 10px;
+    }
+
+    .figure {
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 12px;
+    }
+
+    .controls { gap: 7px; }
+  }
+
+  @media (max-width: 899px) {
+    html, body {
+      height: auto;
+      overflow: auto;
+    }
+
+    .page {
+      height: auto;
+      min-height: 100vh;
+      width: min(100% - 24px, 720px);
+      overflow: visible;
+      padding: 16px 0 22px;
+    }
+
+    .hero,
+    .figure {
+      grid-template-columns: 1fr;
+    }
+
+    .hero {
+      min-height: 0;
+    }
+
+    h1 {
+      font-size: clamp(25px, 8vw, 34px);
+      line-height: 1.02;
+    }
+
+    .model-meta {
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .hero-links {
+      position: static;
+      justify-self: end;
+      order: -1;
+    }
+
+    .qa-card {
+      grid-template-columns: 88px minmax(0, 1fr);
+    }
+
+    .smiles-prefix,
+    .next-token-value {
+      white-space: nowrap;
+    }
+
+    .rollout-rest {
+      line-height: 1.35;
+    }
+
+    .figure {
+      overflow: visible;
+    }
+
+    .stage,
+    .readout {
+      overflow: visible;
+    }
+
+    .readout {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scrubber-section {
+      order: -2;
+      display: block;
+    }
+
+    .trace-select {
+      order: -1;
+    }
+
+    .mol-panel {
+      min-height: 310px;
+    }
+
+    .controls {
+      gap: 6px;
+    }
+
+    .controls button {
+      flex: 1;
+      min-width: 0;
+      min-height: 36px;
+      padding: 0 8px;
+    }
+
+    .chips {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="hero" aria-labelledby="page-title">
+    <div>
+      <h1 id="page-title"><span class="title-accent">SMoLlm</span> Learns Small Molecular Grammar</h1>
+      <div class="model-meta">53K parameters · one shared block, eight passes · beats GPTs 10x larger on valid molecules</div>
+    </div>
+    <nav class="hero-links" aria-label="Project links">
+	      <a class="hero-link" href="https://arxiv.org/abs/2605.06322" target="_blank" rel="noopener noreferrer">paper</a>
+	      <a class="hero-link" href="https://huggingface.co/akhljndl/smollm" target="_blank" rel="noopener noreferrer">hf</a>
+	      <a class="hero-link" href="https://github.com/akhljndl/smollm" target="_blank" rel="noopener noreferrer">code</a>
+	    </nav>
+  </section>
+
+  <section class="figure" aria-label="Interactive trace">
+    <section class="stage">
+      <div id="message" class="message" hidden></div>
+
+      <div id="prefixLine" class="prefix-wrap" aria-label="Current prefix and next token"></div>
+
+      <div id="molPanel" class="mol-panel" aria-label="Molecule readout">
+        <div class="qa-card">
+          <div class="qa-row">
+            <span class="qa-label">prefix</span>
+            <span id="prefixValue" class="qa-value smiles-prefix"></span>
+          </div>
+          <div class="qa-row">
+            <span class="qa-label">next token</span>
+            <span id="nextTokenValue" class="qa-value next-token-value"></span>
+          </div>
+          <div class="qa-row">
+            <span class="qa-label">greedy rollout</span>
+            <span id="completionBridge" class="qa-value rollout-rest" aria-label="Remaining greedy rollout"></span>
+          </div>
+          <div class="qa-row">
+            <span class="qa-label">RDKit validity</span>
+            <span id="validPill" class="qa-value status-pill">
+              <span class="dot" aria-hidden="true"></span>
+              <span id="validLabel">parsing</span>
+            </span>
+          </div>
+        </div>
+        <div id="molSvg" class="mol-svg" aria-label="Target molecule"></div>
+      </div>
+    </section>
+
+    <aside class="readout">
+      <section class="trace-select" aria-labelledby="traceLabel">
+        <span id="traceLabel" class="chips-label">prefixes</span>
+        <div id="chips" class="chips" role="group" aria-labelledby="traceLabel"></div>
+      </section>
+
+      <section aria-labelledby="logitsLabel">
+        <p id="logitsLabel" class="section-label">next-token probabilities</p>
+        <div id="logits" class="logits" role="list" aria-labelledby="logitsLabel"></div>
+      </section>
+
+      <section class="scrubber-section" aria-labelledby="passLabel">
+        <div class="pass-head">
+          <span id="passLabel">pass</span>
+          <span><b id="passNum">1</b> / 8</span>
+        </div>
+        <div class="phase-band" aria-hidden="true">
+          <span class="syntax">1-2 token cues</span>
+          <span class="structure">3-5 structure</span>
+          <span class="semantics">6-8 validity</span>
+        </div>
+        <div class="range-wrap">
+          <input id="passRange" type="range" min="0" max="7" step="1" value="0" aria-labelledby="passLabel passCaption" />
+        </div>
+        <div class="tick-row" aria-hidden="true">
+          <span>1</span><span>2</span><span>3</span><span>4</span>
+          <span>5</span><span>6</span><span>7</span><span>8</span>
+        </div>
+        <div class="controls">
+          <button id="playBtn" type="button" title="Play passes" aria-label="Play passes"><span class="control-icon" aria-hidden="true"></span></button>
+          <button id="prevBtn" type="button" title="Previous pass" aria-label="Previous pass"><span class="control-icon" aria-hidden="true"></span></button>
+          <button id="nextBtn" type="button" title="Next pass" aria-label="Next pass"><span class="control-icon" aria-hidden="true"></span></button>
+          <button id="speedBtn" type="button" title="Playback speed" aria-label="Playback speed"><span class="control-icon" aria-hidden="true"></span></button>
+        </div>
+        <div class="caption">
+          <b id="stageLabel">early token cues</b>
+          <span id="passCaption">raw token pattern</span>
+        </div>
+        <div id="checks" class="checks" aria-label="Constraint checks"></div>
+      </section>
+
+      <section class="feature-section" aria-labelledby="featuresLabel">
+        <p id="featuresLabel" class="section-label">SAE feature map</p>
+        <div class="feature-legend" aria-hidden="true">
+          <span class="syntax">syntax</span>
+          <span class="structure">structure</span>
+        </div>
+        <div class="pass-axis" aria-hidden="true">
+          <span></span><span>1</span><span>2</span><span>3</span><span>4</span>
+          <span>5</span><span>6</span><span>7</span><span>8</span>
+        </div>
+        <div id="features" class="features" role="list" aria-labelledby="featuresLabel"></div>
+      </section>
+    </aside>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const N_PASSES = 8;
+  const SAE_ACTIVE_THRESHOLD = 0.6;
+  const TRACE_VERSION = "2026-05-08-dim0-sae";
+  const TRACE_INDEX = `data/traces/index.json?v=${TRACE_VERSION}`;
+  const TRACE_PATH = slug => `data/traces/${slug}.json?v=${TRACE_VERSION}`;
+  const RDKIT_ASSET_PATH = "./vendor/rdkit";
+  const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const TRACE_COPY = {
+    aromatic: { label: "benzene", hint: "close the aromatic ring without breaking it" },
+    bracket: { label: "open", hint: "open a branch and keep the main chain alive" },
+    ring: { label: "ring", hint: "remember the open ring digit and close it later" },
+    valence: { label: "valence", hint: "finish the dangling bond with a valid atom" },
+    chain: { label: "chain", hint: "extend the chain with a plain carbon" },
+    branch: { label: "branch", hint: "close the branch that was opened earlier" }
+  };
+
+  const FEATURE_LABEL_VIEWS = {
+    aromatic: {
+      order: ["is_ring_digit", "ring_state", "is_atom", "is_bracket", "bracket_depth"],
+      labels: { is_atom: "atom token", is_bracket: "branch token" }
+    },
+    bracket: {
+      order: ["is_bracket", "bracket_depth", "is_atom", "is_ring_digit", "ring_state"],
+      labels: { is_bracket: "open bracket", is_atom: "atom token" }
+    },
+    branch: {
+      order: ["bracket_depth", "is_bracket", "is_atom", "ring_state", "is_ring_digit"],
+      labels: { is_bracket: "paren token", is_atom: "atom token" }
+    },
+    chain: {
+      order: ["is_atom", "bracket_depth", "is_bracket", "is_ring_digit", "ring_state"],
+      labels: { is_atom: "atom token", bracket_depth: "branch drift", is_bracket: "branch token" }
+    },
+    ring: {
+      order: ["ring_state", "is_ring_digit", "is_atom", "bracket_depth", "is_bracket"],
+      labels: { ring_state: "open ring", is_ring_digit: "closure digit", is_atom: "atom token", is_bracket: "branch token" }
+    },
+    valence: {
+      order: ["is_atom", "ring_state", "is_ring_digit", "is_bracket", "bracket_depth"],
+      labels: { is_atom: "atom token", is_bracket: "branch token" }
+    }
+  };
+
+  const els = {
+    message: document.querySelector("#message"),
+    prefixLine: document.querySelector("#prefixLine"),
+    molPanel: document.querySelector("#molPanel"),
+    molSvg: document.querySelector("#molSvg"),
+    completionBridge: document.querySelector("#completionBridge"),
+    nextTokenValue: document.querySelector("#nextTokenValue"),
+    validPill: document.querySelector("#validPill"),
+    validLabel: document.querySelector("#validLabel"),
+    prefixValue: document.querySelector("#prefixValue"),
+    chips: document.querySelector("#chips"),
+    logits: document.querySelector("#logits"),
+    passNum: document.querySelector("#passNum"),
+    passRange: document.querySelector("#passRange"),
+    playBtn: document.querySelector("#playBtn"),
+    prevBtn: document.querySelector("#prevBtn"),
+    nextBtn: document.querySelector("#nextBtn"),
+    speedBtn: document.querySelector("#speedBtn"),
+    stageLabel: document.querySelector("#stageLabel"),
+    passCaption: document.querySelector("#passCaption"),
+    checks: document.querySelector("#checks"),
+    features: document.querySelector("#features")
+  };
+
+  const state = {
+    index: { examples: [] },
+    trace: null,
+    slug: "",
+    pass: 0,
+    playing: false,
+    timer: null,
+    rdkit: null,
+    rdkitResolved: false,
+    loadingTrace: false,
+    loadSeq: 0,
+    targetMol: null,
+    targetAtomCount: 0,
+    targetSlug: null,
+    prevValid: false,
+    pulseTimer: null,
+    speedIdx: 0
+  };
+
+  const PLAY_SPEEDS = [
+    { level: 1, delay: 1800, name: "1x" },
+    { level: 2, delay: 1040, name: "2x" },
+    { level: 3, delay: 520, name: "3x" }
+  ];
+
+  function iconSvg(kind, level = 1) {
+    const common = `viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"`;
+    if (kind === "pause") {
+      return `<svg ${common}><rect x="7" y="5" width="3.2" height="14" rx=".5"></rect><rect x="13.8" y="5" width="3.2" height="14" rx=".5"></rect></svg>`;
+    }
+    if (kind === "prev") {
+      return `<svg ${common}><rect x="6" y="5" width="1.8" height="14" rx=".4"></rect><path d="M17.5 5.5 8.5 12l9 6.5z"></path></svg>`;
+    }
+    if (kind === "next") {
+      return `<svg ${common}><path d="M6.5 5.5 15.5 12l-9 6.5z"></path><rect x="16.2" y="5" width="1.8" height="14" rx=".4"></rect></svg>`;
+    }
+    if (kind === "speed") {
+      const count = Math.max(1, Math.min(3, level));
+      const start = count === 1 ? 8 : count === 2 ? 5 : 2;
+      return `<svg ${common}>${Array.from({ length: count }, (_, idx) => {
+        const x = start + idx * 6;
+        return `<path d="M${x} 5.5 ${x + 7} 12 ${x} 18.5z"></path>`;
+      }).join("")}</svg>`;
+    }
+    return `<svg ${common}><path d="M8 5.5 17 12l-9 6.5z"></path></svg>`;
+  }
+
+  function setControlIcon(button, icon) {
+    const target = button.querySelector(".control-icon");
+    if (target) target.innerHTML = icon;
+  }
+
+  function stageWord(passIdx) {
+    if (passIdx <= 1) return "early token cues";
+    if (passIdx <= 4) return "structural constraints";
+    return "chemical validity";
+  }
+
+  function softenTraceCopy(value) {
+    return String(value || "")
+      .replace(/\bsyntax\b/gi, "token pattern")
+      .replace(/\brings\b/gi, "ring constraints")
+      .replace(/\bvalence\b/gi, "validity")
+      .replace(/\bsemantics\b/gi, "chemical validity");
+  }
+
+  function text(node, value) {
+    node.textContent = value == null ? "" : String(value);
+  }
+
+  function clear(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function showMessage(value) {
+    if (!value) {
+      els.message.hidden = true;
+      text(els.message, "");
+      return;
+    }
+    text(els.message, value);
+    els.message.hidden = false;
+  }
+
+  async function fetchJson(path) {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`${path} returned ${response.status}`);
+    return response.json();
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function normalizeIndex(index) {
+    const examples = asArray(index?.examples);
+    if (!examples.length) throw new Error("Trace index has no examples");
+    return { examples };
+  }
+
+  function normalizeTrace(slug, trace) {
+    if (!trace || typeof trace !== "object") throw new Error(`${slug} trace is not an object`);
+    if (!asArray(trace.passes).length) throw new Error(`${slug} trace has no passes`);
+    return { ...trace, slug };
+  }
+
+  async function initRdkit() {
+    try {
+      if (typeof window.initRDKitModule !== "function") throw new Error("RDKit script unavailable");
+      state.rdkit = await window.initRDKitModule({ locateFile: file => `${RDKIT_ASSET_PATH}/${file}` });
+    } catch (error) {
+      console.debug("RDKit failed to load", error);
+    } finally {
+      state.rdkitResolved = true;
+      render();
+    }
+  }
+
+  function currentExample() {
+    const examples = asArray(state.index.examples);
+    return examples.find(item => item.slug === state.slug) || examples[0] || null;
+  }
+
+  function currentPass() {
+    if (state.loadingTrace || !state.trace) return null;
+    const passes = asArray(state.trace.passes);
+    return passes[state.pass] || passes[0] || null;
+  }
+
+  function smilesForRender(smiles) {
+    if (!smiles) return smiles;
+    const capped = smiles.replace(/C{12,}/g, "CCCCCCCCCCCC");
+    return capped;
+  }
+
+  function shortText(value, max = 116) {
+    const str = String(value || "");
+    return str.length > max ? `${str.slice(0, max - 3)}...` : str;
+  }
+
+  function displayToken(value) {
+    const token = String(value || "");
+    if (token.length <= 9) return token;
+    if (token.startsWith("[") && token.endsWith("]")) {
+      return `${token.slice(0, 7)}...]`;
+    }
+    return shortText(token, 10);
+  }
+
+  function featureLabel(feature) {
+    const label = String(feature?.label || feature?.slug || "feature").toLowerCase();
+    if (label === "bracket depth") return "branch depth";
+    if (label === "bracket token" || label === "is_bracket") return "bracket token";
+    if (label === "atom token" || label === "is_atom") return "atom token";
+    if (label === "bracket (") return "branch open";
+    if (label === "bracket )") return "branch close";
+    if (label === "bracket") return "branch";
+    if (label === "ring digit 2") return "second ring";
+    if (label === "ring digit") return "ring digit";
+    if (label === "ring state") return "ring state";
+    if (label.includes("[") && label.includes("@")) return "stereo atom";
+    if (label.includes("[") && label.includes("+")) return "charged atom";
+    if (label.startsWith("atom")) return "atom type";
+    return label;
+  }
+
+  function visibleFeaturesForTrace(trace) {
+    const features = asArray(trace?.features);
+    const view = FEATURE_LABEL_VIEWS[trace?.slug] || FEATURE_LABEL_VIEWS[state.slug];
+    if (!view) return features;
+
+    const bySlug = new Map(features.map(feature => [feature.slug, feature]));
+    const orderedSlugs = [...(view.order || []), ...features.map(feature => feature.slug)]
+      .filter((slug, idx, all) => slug && all.indexOf(slug) === idx);
+
+    return orderedSlugs
+      .map(slug => {
+        const feature = bySlug.get(slug);
+        if (!feature) return null;
+        return {
+          ...feature,
+          label: view.labels?.[slug] || feature.label,
+          category: view.categories?.[slug] || feature.category
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function buildChips() {
+    clear(els.chips);
+    const examples = asArray(state.index.examples);
+    for (const item of examples) {
+      const copy = TRACE_COPY[item.slug] || { label: item.slug, hint: item.caption || "" };
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chip";
+      button.dataset.slug = item.slug;
+      button.setAttribute("aria-pressed", item.slug === state.slug ? "true" : "false");
+      button.setAttribute("aria-label", `${copy.label}: ${copy.hint || item.caption || "trace prefix"}`);
+      button.title = `${item.prefix || item.slug}: ${copy.hint}`;
+      text(button, copy.label);
+      button.addEventListener("click", () => {
+        if (item.slug !== state.slug || state.loadingTrace) selectTrace(item.slug);
+      });
+      els.chips.appendChild(button);
+    }
+    text(els.prefixValue, state.trace?.prefix || currentExample()?.prefix || "");
+  }
+
+  async function selectTrace(slug) {
+    const seq = state.loadSeq + 1;
+    state.loadSeq = seq;
+    stop(false);
+    state.loadingTrace = true;
+    state.slug = slug;
+    state.trace = null;
+    state.pass = 0;
+    if (state.targetMol && typeof state.targetMol.delete === "function") state.targetMol.delete();
+    state.targetMol = null;
+    state.targetAtomCount = 0;
+    state.targetSlug = null;
+    state.prevValid = false;
+    if (state.pulseTimer) {
+      window.clearTimeout(state.pulseTimer);
+      state.pulseTimer = null;
+    }
+    els.molPanel.classList.remove("just-valid", "state-valid", "state-invalid");
+    clear(els.molSvg);
+    buildChips();
+    showMessage("");
+    render();
+
+    try {
+      const trace = await fetchJson(TRACE_PATH(slug));
+      if (seq !== state.loadSeq) return;
+      state.trace = normalizeTrace(slug, trace);
+      state.slug = slug;
+      state.loadingTrace = false;
+      showMessage("");
+    } catch (error) {
+      if (seq !== state.loadSeq) return;
+      console.debug(`Trace ${slug} failed to load`, error);
+      state.trace = null;
+      state.loadingTrace = false;
+      showMessage("trace unavailable");
+    }
+
+    state.prevValid = Boolean((state.trace?.passes || [])[state.pass]?.completion_valid);
+    buildChips();
+    render();
+  }
+
+  function renderPrefix(pass) {
+    clear(els.prefixLine);
+    const prefixText = state.trace?.prefix || currentExample()?.prefix || "";
+    const nextToken = pass?.argmax_token || "";
+    els.prefixLine.setAttribute(
+      "aria-label",
+      nextToken ? `Current prefix ${prefixText}; next token ${nextToken}` : `Current prefix ${prefixText}`
+    );
+    const prefix = document.createElement("span");
+    prefix.className = "prefix-text";
+    text(prefix, prefixText);
+
+    const cursor = document.createElement("span");
+    cursor.className = "cursor";
+    cursor.setAttribute("aria-hidden", "true");
+
+    const ghost = document.createElement("span");
+    ghost.className = "ghost-token";
+    text(ghost, nextToken);
+
+    els.prefixLine.append(prefix, cursor, ghost);
+  }
+
+  const MOL_CANVAS_W = 480;
+  const MOL_CANVAS_H = 300;
+  const MOL_FIXED_BOND_LENGTH = 26;
+  const MOL_HIGHLIGHT_RGB = [0.184, 0.502, 0.376];
+  const MOL_DRAW_OPTS = JSON.stringify({
+    width: MOL_CANVAS_W,
+    height: MOL_CANVAS_H,
+    fixedBondLength: MOL_FIXED_BOND_LENGTH,
+    centreMoleculesBeforeDrawing: true,
+    clearBackground: false,
+  });
+
+  function renderMolSvg(mol, extraOpts) {
+    const opts = extraOpts
+      ? JSON.stringify({
+          width: MOL_CANVAS_W,
+          height: MOL_CANVAS_H,
+          fixedBondLength: MOL_FIXED_BOND_LENGTH,
+          centreMoleculesBeforeDrawing: true,
+          clearBackground: false,
+          ...extraOpts,
+        })
+      : MOL_DRAW_OPTS;
+    try {
+      const out = mol.get_svg_with_highlights(opts);
+      if (out && out.length > 0) return out;
+    } catch (_e) {}
+    try {
+      const out = mol.get_svg(MOL_CANVAS_W, MOL_CANVAS_H, opts);
+      if (out && out.length > 0) return out;
+    } catch (_e) {}
+    return mol.get_svg(MOL_CANVAS_W, MOL_CANVAS_H);
+  }
+
+  function parseSvgFromString(svg) {
+    const tmpl = document.createElement("template");
+    tmpl.innerHTML = svg.trim();
+    const node = tmpl.content.querySelector("svg");
+    if (!node) return null;
+    node.querySelectorAll("rect").forEach(rect => rect.remove());
+    return node;
+  }
+
+  function parseMolblockBonds(molblock) {
+    const lines = molblock.split("\n");
+    if (lines.length < 4) return [];
+    const counts = lines[3].trim().split(/\s+/);
+    const nAtoms = parseInt(counts[0], 10);
+    const nBonds = parseInt(counts[1], 10);
+    if (!Number.isFinite(nAtoms) || !Number.isFinite(nBonds)) return [];
+    const bonds = [];
+    for (let i = 0; i < nBonds; i += 1) {
+      const line = lines[4 + nAtoms + i];
+      if (!line) continue;
+      const a = parseInt(line.slice(0, 3), 10) - 1;
+      const b = parseInt(line.slice(3, 6), 10) - 1;
+      if (Number.isFinite(a) && Number.isFinite(b)) bonds.push([a, b]);
+    }
+    return bonds;
+  }
+
+  function prefixAtomCount(prefix) {
+    let count = 0;
+    for (let i = 0; i < prefix.length; i += 1) {
+      const ch = prefix[i];
+      if (ch === "[") {
+        const end = prefix.indexOf("]", i);
+        if (end < 0) continue;
+        count += 1;
+        i = end;
+      } else if (ch === "C" && prefix[i + 1] === "l") {
+        count += 1;
+        i += 1;
+      } else if (ch === "B" && prefix[i + 1] === "r") {
+        count += 1;
+        i += 1;
+      } else if (/[A-Za-z]/.test(ch)) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  function molPrefixHighlight(mol) {
+    if (state.slug !== "ring" || !mol) return { atoms: [], bonds: [] };
+    const atomCount = Math.min(prefixAtomCount(state.trace?.prefix || ""), state.targetAtomCount || 0);
+    if (atomCount <= 0) return { atoms: [], bonds: [] };
+    const molblock = (typeof mol.get_molblock === "function") ? mol.get_molblock() : "";
+    const molBonds = parseMolblockBonds(molblock);
+    const atoms = Array.from({ length: atomCount }, (_, i) => i);
+    const bonds = molBonds
+      .map(([a, b], idx) => ({ a, b, idx }))
+      .filter(({ a, b }) => a < atomCount && b < atomCount && Math.abs(a - b) === 1)
+      .map(({ idx }) => idx);
+    return { atoms, bonds };
+  }
+
+  function rolloutMatchedAtoms(rolloutMol) {
+    const target = state.trace?.target_smiles || "";
+    if (!target || !rolloutMol) return { atoms: [], bonds: [] };
+    if (state.targetMol) {
+      try {
+        const matchJson = rolloutMol.get_substruct_match(state.targetMol);
+        if (matchJson && matchJson.length > 0) {
+          const parsed = JSON.parse(matchJson);
+          if (parsed && Array.isArray(parsed.atoms) && parsed.atoms.length > 0) {
+            return {
+              atoms: parsed.atoms,
+              bonds: Array.isArray(parsed.bonds) ? parsed.bonds : [],
+            };
+          }
+        }
+      } catch (err) {
+        console.debug("Substructure match failed", err);
+      }
+    }
+    return { atoms: [], bonds: [] };
+  }
+
+  function prepareTarget() {
+    if (state.targetSlug === state.slug && state.targetMol) return;
+    if (state.targetMol && typeof state.targetMol.delete === "function") state.targetMol.delete();
+    state.targetMol = null;
+    state.targetAtomCount = 0;
+    state.targetSlug = null;
+
+    const target = state.trace?.target_smiles;
+    if (!target || !state.rdkit) return;
+
+    let mol = null;
+    try {
+      mol = state.rdkit.get_mol(target);
+      if (!mol) throw new Error("template parse failed");
+      if (typeof mol.set_new_coords === "function") mol.set_new_coords(true);
+      const numAtoms = (typeof mol.get_num_atoms === "function") ? mol.get_num_atoms() : 0;
+      state.targetMol = mol;
+      state.targetAtomCount = numAtoms;
+      state.targetSlug = state.slug;
+      mol = null;
+    } catch (error) {
+      console.debug("Target preparation failed", error);
+    } finally {
+      if (mol && typeof mol.delete === "function") mol.delete();
+    }
+  }
+
+  function renderMolFromMol(mol, atoms, bonds) {
+    const highlightOpts = atoms && atoms.length > 0
+      ? { atoms, bonds: bonds || [], highlightColour: MOL_HIGHLIGHT_RGB }
+      : null;
+    const svg = renderMolSvg(mol, highlightOpts);
+    const svgNode = parseSvgFromString(svg);
+    if (!svgNode) throw new Error("RDKit returned no SVG");
+    svgNode.setAttribute("overflow", "visible");
+    els.molSvg.appendChild(svgNode);
+  }
+
+  function renderMol(pass, valid) {
+    clear(els.molSvg);
+
+    if (state.loadingTrace) {
+      renderMolFallback("", "loading", false);
+      return;
+    }
+
+    const target = state.trace?.target_smiles || "";
+    if (!target) {
+      renderMolFallback("", "no target", false);
+      return;
+    }
+
+    if (!state.rdkit) {
+      const note = state.rdkitResolved ? "drawing unavailable" : "drawer warming";
+      renderMolFallback(target, note, state.rdkitResolved);
+      return;
+    }
+
+    prepareTarget();
+    if (!state.targetMol || !state.targetAtomCount) {
+      renderMolFallback(target, "drawing unavailable");
+      return;
+    }
+
+    if (!valid) {
+      try {
+        renderMolFromMol(state.targetMol, [], []);
+      } catch (error) {
+        console.debug("Target render failed", error);
+        renderMolFallback(target, "drawing unavailable");
+      }
+      return;
+    }
+
+    const rollout = pass?.completion || "";
+    let rolloutMol = null;
+    try {
+      rolloutMol = state.rdkit.get_mol(smilesForRender(rollout));
+      if (!rolloutMol) throw new Error("rollout parse failed");
+      if (typeof rolloutMol.is_valid === "function" && !rolloutMol.is_valid()) {
+        throw new Error("rollout invalid");
+      }
+      const prefixHighlight = molPrefixHighlight(rolloutMol);
+      const { atoms, bonds } = prefixHighlight.atoms.length
+        ? prefixHighlight
+        : rolloutMatchedAtoms(rolloutMol);
+      renderMolFromMol(rolloutMol, atoms, bonds);
+    } catch (error) {
+      console.debug("Rollout render failed", error);
+      try {
+        renderMolFromMol(state.targetMol, [], []);
+      } catch (_e) {
+        renderMolFallback(rollout || target, "drawing unavailable");
+      }
+    } finally {
+      if (rolloutMol && typeof rolloutMol.delete === "function") rolloutMol.delete();
+    }
+  }
+
+  function renderMolFallback(smiles, note, showCode = true) {
+    const fallback = document.createElement("div");
+    fallback.className = "fallback-smiles";
+    fallback.classList.toggle("minimal", !showCode);
+    const label = document.createElement("span");
+    text(label, note);
+    if (showCode && smiles) {
+      const code = document.createElement("code");
+      text(code, shortText(smiles, 128));
+      fallback.appendChild(code);
+    }
+    fallback.appendChild(label);
+    els.molSvg.appendChild(fallback);
+  }
+
+  function renderBridge(pass) {
+    clear(els.completionBridge);
+    text(els.nextTokenValue, "");
+    if (state.loadingTrace || !pass) return;
+    const prefix = state.trace?.prefix || "";
+    const nextToken = pass.argmax_token || "";
+    const completion = pass.completion || "";
+
+    let tail = completion;
+    if (completion.startsWith(prefix)) {
+      tail = completion.slice(prefix.length);
+    }
+    let rest = tail;
+    if (nextToken && tail.startsWith(nextToken)) {
+      rest = tail.slice(nextToken.length);
+    }
+
+    text(els.prefixValue, prefix);
+    text(els.nextTokenValue, nextToken || "-");
+    els.completionBridge.classList.toggle("empty", !rest);
+    text(els.completionBridge, rest || "no additional tokens");
+  }
+
+  function renderLogits(pass) {
+    clear(els.logits);
+    const logits = (pass?.top_logits || []).slice(0, 5);
+    const maxProb = Math.max(...logits.map(item => item.prob || 0), 0.001);
+
+    if (!logits.length) {
+      const row = document.createElement("div");
+      row.className = "logit-row";
+      row.setAttribute("role", "listitem");
+      text(row, "loading");
+      els.logits.appendChild(row);
+      return;
+    }
+
+    logits.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = `logit-row${index === 0 ? " top" : ""}`;
+      row.setAttribute("role", "listitem");
+      row.setAttribute("aria-label", `${item.token}, probability ${(item.prob || 0).toFixed(2)}`);
+      const token = document.createElement("div");
+      token.className = "logit-token";
+      token.title = item.token;
+      token.classList.toggle("long", String(item.token || "").length > 6);
+      text(token, displayToken(item.token));
+
+      const track = document.createElement("div");
+      track.className = "logit-track";
+      const fill = document.createElement("div");
+      fill.className = "logit-fill";
+      fill.style.width = `${Math.max(1, ((item.prob || 0) / maxProb) * 100)}%`;
+      track.appendChild(fill);
+
+      const prob = document.createElement("div");
+      prob.className = "logit-prob";
+      text(prob, (item.prob || 0).toFixed(2));
+
+      row.append(token, track, prob);
+      els.logits.appendChild(row);
+    });
+  }
+
+  function renderFeatures(passIdx) {
+    clear(els.features);
+    const traceFeatures = visibleFeaturesForTrace(state.trace);
+
+    if (!traceFeatures.length) {
+      const row = document.createElement("div");
+      row.className = "feature-row";
+      row.setAttribute("role", "listitem");
+      const name = document.createElement("div");
+      name.className = "feature-name";
+      text(name, "nothing labeled");
+      row.appendChild(name);
+      els.features.appendChild(row);
+      return;
+    }
+
+    traceFeatures.slice(0, 7).forEach(feature => {
+      const category = feature.category || "unlabeled";
+      const activePasses = new Set(feature.active_passes || []);
+      const row = document.createElement("div");
+      row.className = "feature-row";
+      row.setAttribute("role", "listitem");
+      row.setAttribute("aria-label", `${featureLabel(feature)}, ${category}, SAE correlation by pass`);
+
+      const name = document.createElement("div");
+      name.className = `feature-name ${category}`;
+      name.title = feature.label || feature.slug || "";
+      text(name, featureLabel(feature));
+      row.appendChild(name);
+
+      for (let i = 0; i < N_PASSES; i += 1) {
+        const cell = document.createElement("div");
+        cell.className = `feature-cell ${category}`;
+        const rawStrength = Number(asArray(feature.strengths)[i]);
+        const hasStrength = Number.isFinite(rawStrength);
+        const strength = hasStrength ? Math.max(0, Math.min(1, rawStrength)) : 0;
+        const isActive = hasStrength
+          ? strength >= SAE_ACTIVE_THRESHOLD
+          : activePasses.has(i);
+        const heat = hasStrength ? Math.min(0.92, 0.52 + strength * 0.34) : (isActive ? 0.82 : 0);
+        cell.style.setProperty("--heat", heat.toFixed(3));
+        cell.classList.toggle("active", isActive);
+        cell.classList.toggle("current", i === passIdx);
+        cell.title = hasStrength
+          ? `pass ${i + 1}: SAE correlation ${strength.toFixed(2)}`
+          : `pass ${i + 1}${isActive ? ": active" : ""}`;
+        cell.setAttribute("aria-hidden", "true");
+        row.appendChild(cell);
+      }
+
+      els.features.appendChild(row);
+    });
+  }
+
+  function captionFor(passIdx, pass, valid) {
+    if (state.loadingTrace) return "loading";
+    if (pass?.caption) return softenTraceCopy(pass.caption);
+    const previous = (state.trace?.passes || [])[passIdx - 1];
+    const wasValid = Boolean(previous?.completion_valid);
+    const token = pass?.argmax_token || "?";
+
+    if (!wasValid && valid && previous) return "molecule becomes valid";
+    if (token === ")") return "bracket closes";
+    if (/^[0-9]$/.test(token) && passIdx <= 3) return "ring waits";
+    if (/^[0-9]$/.test(token)) return "ring closure wins";
+    if (passIdx >= 5) return "validity signal strengthens";
+    if (passIdx === 1) return "token pattern stabilizes";
+    if (passIdx >= 2 && passIdx <= 4) return "structure constraint sharpens";
+    return `guess: "${token}"`;
+  }
+
+  function renderChecks(passIdx, valid) {
+    clear(els.checks);
+    const pass = currentPass();
+    const traceChecks = asArray(pass?.checks);
+    const checks = traceChecks.length
+      ? traceChecks.map(function (c) {
+          return { label: softenTraceCopy(c.label), on: c.state === "on", wait: c.state === "wait" };
+        })
+      : [
+          { label: "token cues", on: passIdx >= 1, wait: passIdx === 0 },
+          { label: "structure", on: passIdx >= 3, wait: passIdx >= 1 && passIdx < 3 },
+          { label: "RDKit-valid", on: valid, wait: !valid && passIdx >= 4 }
+        ];
+    checks.forEach(check => {
+      const item = document.createElement("span");
+      item.className = check.on ? "on" : check.wait ? "wait" : "";
+      text(item, check.label);
+      els.checks.appendChild(item);
+    });
+  }
+
+  function render() {
+    const pass = currentPass();
+    const passIdx = Math.max(0, Math.min(N_PASSES - 1, state.pass));
+    state.pass = passIdx;
+
+    const valid = Boolean(pass?.completion_valid);
+
+    renderPrefix(pass);
+    renderBridge(pass);
+    renderMol(pass, valid);
+    renderLogits(pass);
+    renderFeatures(passIdx);
+    renderChecks(passIdx, valid);
+
+    els.molPanel.classList.toggle("state-valid", valid && !state.loadingTrace);
+    els.molPanel.classList.toggle("state-invalid", !valid && !state.loadingTrace);
+
+    if (!state.loadingTrace && state.prevValid === false && valid === true && !REDUCED_MOTION) {
+      els.molPanel.classList.remove("just-valid");
+      void els.molPanel.offsetWidth;
+      els.molPanel.classList.add("just-valid");
+      if (state.pulseTimer) window.clearTimeout(state.pulseTimer);
+      state.pulseTimer = window.setTimeout(() => {
+        els.molPanel.classList.remove("just-valid");
+        state.pulseTimer = null;
+      }, 700);
+    }
+    state.prevValid = valid && !state.loadingTrace;
+
+    text(els.passNum, String(passIdx + 1));
+    text(els.stageLabel, stageWord(passIdx));
+    text(els.passCaption, captionFor(passIdx, pass, valid));
+    text(els.validLabel, valid ? "valid" : state.loadingTrace ? "loading" : "not valid");
+    els.validPill.classList.toggle("valid", valid);
+    els.passRange.value = String(passIdx);
+    els.passRange.parentElement?.style.setProperty("--pass-progress", String(passIdx / (N_PASSES - 1)));
+    els.passRange.setAttribute("aria-valuetext", `Pass ${passIdx + 1}: ${stageWord(passIdx)}`);
+    const speed = PLAY_SPEEDS[state.speedIdx] || PLAY_SPEEDS[0];
+    setControlIcon(els.playBtn, iconSvg(state.playing ? "pause" : "play"));
+    setControlIcon(els.prevBtn, iconSvg("prev"));
+    setControlIcon(els.nextBtn, iconSvg("next"));
+    setControlIcon(els.speedBtn, iconSvg("speed", speed.level));
+    els.playBtn.setAttribute("aria-label", state.playing ? "Pause passes" : "Play passes");
+    els.playBtn.title = state.playing ? "Pause passes" : "Play passes";
+    els.speedBtn.setAttribute("aria-label", `Playback speed ${speed.name}`);
+    els.speedBtn.title = `Playback speed ${speed.name}`;
+  }
+
+  function nextPass(delta) {
+    state.pass = (state.pass + delta + N_PASSES) % N_PASSES;
+    render();
+  }
+
+  function play() {
+    if (state.loadingTrace) return;
+    stop(false);
+    state.playing = true;
+    render();
+    const speed = PLAY_SPEEDS[state.speedIdx] || PLAY_SPEEDS[0];
+    state.timer = window.setTimeout(function tick() {
+      if (!state.playing) return;
+      state.pass = (state.pass + 1) % N_PASSES;
+      render();
+      const nextSpeed = PLAY_SPEEDS[state.speedIdx] || PLAY_SPEEDS[0];
+      state.timer = window.setTimeout(tick, nextSpeed.delay);
+    }, speed.delay);
+  }
+
+  function stop(shouldRender = true) {
+    state.playing = false;
+    if (state.timer) window.clearTimeout(state.timer);
+    state.timer = null;
+    if (shouldRender) render();
+  }
+
+  async function boot() {
+    try {
+      state.index = normalizeIndex(await fetchJson(TRACE_INDEX));
+    } catch (error) {
+      console.debug("Trace index failed to load", error);
+      state.index = { examples: [] };
+      state.trace = null;
+      state.slug = "";
+      showMessage("trace index unavailable");
+      render();
+      return;
+    }
+
+    buildChips();
+    const first = state.index.examples?.[0]?.slug;
+    await selectTrace(first);
+    if (!REDUCED_MOTION) play();
+  }
+
+  els.playBtn.addEventListener("click", () => {
+    if (state.playing) stop();
+    else play();
+  });
+
+  els.prevBtn.addEventListener("click", () => {
+    stop(false);
+    nextPass(-1);
+  });
+
+  els.nextBtn.addEventListener("click", () => {
+    stop(false);
+    nextPass(1);
+  });
+
+  els.speedBtn.addEventListener("click", () => {
+    state.speedIdx = (state.speedIdx + 1) % PLAY_SPEEDS.length;
+    if (state.playing) play();
+    else render();
+  });
+
+  els.passRange.addEventListener("input", event => {
+    stop(false);
+    state.pass = Number(event.target.value);
+    render();
+  });
+
+  window.addEventListener("keydown", event => {
+    if (event.defaultPrevented) return;
+    const tag = event.target?.tagName;
+    if (["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(tag)) return;
+    if (event.key === "ArrowRight") {
+      stop(false);
+      nextPass(1);
+    } else if (event.key === "ArrowLeft") {
+      stop(false);
+      nextPass(-1);
+    } else if (event.key === " ") {
+      event.preventDefault();
+      if (state.playing) stop();
+      else play();
+    }
+  });
+
+  boot();
+  initRdkit();
+})();
+</script>
+</body>
+</html>
