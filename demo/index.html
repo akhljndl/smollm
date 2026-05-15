@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SMoLlm</title>
-<meta name="description" content="SMoLlm is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
+<title>SMolLM</title>
+<meta name="description" content="SMolLM is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
 <link rel="canonical" href="https://akhljndl.github.io/smollm/" />
-<meta property="og:title" content="SMoLlm" />
-<meta property="og:description" content="SMoLlm is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
+<meta property="og:title" content="SMolLM" />
+<meta property="og:description" content="SMolLM is a 53K parameter weight-shared transformer that applies one block eight times to generate valid small molecules." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://akhljndl.github.io/smollm/" />
 <meta property="og:image" content="https://akhljndl.github.io/smollm/og-image.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Editorial molecular grammar diagram for SMoLlm, showing repeated transformer passes and molecular token traces." />
+<meta property="og:image:alt" content="Editorial molecular grammar diagram for SMolLM, showing repeated transformer passes and molecular token traces." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://akhljndl.github.io/smollm/og-image.png" />
-<meta name="twitter:image:alt" content="Editorial molecular grammar diagram for SMoLlm, showing repeated transformer passes and molecular token traces." />
+<meta name="twitter:image:alt" content="Editorial molecular grammar diagram for SMolLM, showing repeated transformer passes and molecular token traces." />
 <meta name="theme-color" content="#f3ecdc" />
 <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
@@ -511,6 +511,9 @@
     align-items: center;
     min-height: var(--mark-height);
     font-size: var(--body-type);
+    opacity: var(--row-opacity, 1);
+    transform: translateX(calc((1 - var(--row-opacity, 1)) * 8px));
+    transition: opacity 360ms ease, transform 360ms ease;
   }
 
   .logit-token {
@@ -522,6 +525,7 @@
     letter-spacing: 0;
     line-height: 1.15;
     white-space: nowrap;
+    transition: color 260ms ease, opacity 260ms ease;
   }
 
   .logit-token.long {
@@ -537,7 +541,7 @@
     height: 100%;
     width: 0%;
     background: var(--accent);
-    transition: width 260ms ease;
+    transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .logit-prob {
@@ -545,6 +549,7 @@
     font-family: var(--serif);
     line-height: 1;
     text-align: right;
+    transition: color 260ms ease, opacity 260ms ease;
   }
 
   .scrubber-section {
@@ -637,6 +642,7 @@
     background: var(--accent);
     box-shadow: 0 0 0 6px rgba(90, 95, 209, 0.12);
     transform: translate(-50%, -50%);
+    transition: left 560ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease;
   }
 
   input[type="range"] {
@@ -791,6 +797,7 @@
     line-height: 1;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    transition: color 360ms ease, opacity 360ms ease;
   }
 
   .checks span::before {
@@ -798,6 +805,7 @@
     width: clamp(6px, 0.45vw, 9px);
     height: clamp(6px, 0.45vw, 9px);
     background: var(--faint);
+    transition: background 420ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .checks .on { color: var(--ink); }
@@ -872,6 +880,7 @@
 
   .feature-row {
     min-height: clamp(24px, 2.8vh, 36px);
+    transition: opacity 360ms ease;
   }
 
   .feature-name {
@@ -893,6 +902,7 @@
     height: var(--mark-height);
     background: rgba(19, 17, 12, 0.085);
     position: relative;
+    transition: background 460ms ease, box-shadow 460ms ease;
   }
 
   .feature-cell.current {
@@ -909,7 +919,7 @@
     position: absolute;
     inset: 0;
     opacity: 0;
-    transition: background 220ms ease, opacity 220ms ease;
+    transition: background 460ms ease, opacity 540ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .feature-cell.active::after {
@@ -1187,7 +1197,7 @@
 <main class="page">
   <section class="hero" aria-labelledby="page-title">
     <div>
-      <h1 id="page-title"><span class="title-accent">SMoLlm</span> Learns Small Molecular Grammar</h1>
+      <h1 id="page-title"><span class="title-accent">SMolLM</span> Learns Small Molecular Grammar</h1>
       <div class="model-meta">53K parameters · one shared block, eight passes · beats GPTs 10x larger on valid molecules</div>
     </div>
     <nav class="hero-links" aria-label="Project links">
@@ -1374,7 +1384,11 @@
     targetSlug: null,
     prevValid: false,
     pulseTimer: null,
-    speedIdx: 0
+    speedIdx: 0,
+    logitRows: [],
+    featureRows: [],
+    featureSignature: "",
+    checkItems: []
   };
 
   const PLAY_SPEEDS = [
@@ -1584,8 +1598,15 @@
       window.clearTimeout(state.pulseTimer);
       state.pulseTimer = null;
     }
+    state.logitRows = [];
+    state.featureRows = [];
+    state.featureSignature = "";
+    state.checkItems = [];
     els.molPanel.classList.remove("just-valid", "state-valid", "state-invalid");
     clear(els.molSvg);
+    clear(els.logits);
+    clear(els.features);
+    clear(els.checks);
     buildChips();
     showMessage("");
     render();
@@ -1892,52 +1913,87 @@
     els.completionBridge.title = rest || "no additional tokens";
   }
 
-  function renderLogits(pass) {
-    clear(els.logits);
-    const logits = (pass?.top_logits || []).slice(0, 5);
-    const maxProb = Math.max(...logits.map(item => item.prob || 0), 0.001);
-
-    if (!logits.length) {
+  function ensureLogitRows(count) {
+    while (state.logitRows.length < count) {
       const row = document.createElement("div");
       row.className = "logit-row";
       row.setAttribute("role", "listitem");
-      text(row, "loading");
-      els.logits.appendChild(row);
-      return;
-    }
 
-    logits.forEach((item, index) => {
-      const row = document.createElement("div");
-      row.className = `logit-row${index === 0 ? " top" : ""}`;
-      row.setAttribute("role", "listitem");
-      row.setAttribute("aria-label", `${item.token}, probability ${(item.prob || 0).toFixed(2)}`);
       const token = document.createElement("div");
       token.className = "logit-token";
-      token.title = item.token;
-      token.classList.toggle("long", String(item.token || "").length > 6);
-      text(token, displayToken(item.token));
 
       const track = document.createElement("div");
       track.className = "logit-track";
       const fill = document.createElement("div");
       fill.className = "logit-fill";
-      fill.style.width = `${Math.max(1, ((item.prob || 0) / maxProb) * 100)}%`;
       track.appendChild(fill);
 
       const prob = document.createElement("div");
       prob.className = "logit-prob";
-      text(prob, (item.prob || 0).toFixed(2));
 
       row.append(token, track, prob);
       els.logits.appendChild(row);
+      state.logitRows.push({ row, token, fill, prob });
+    }
+    return state.logitRows.slice(0, count);
+  }
+
+  function renderLogits(pass) {
+    const rows = ensureLogitRows(5);
+    const logits = (pass?.top_logits || []).slice(0, 5);
+    const maxProb = Math.max(...logits.map(item => item.prob || 0), 0.001);
+
+    if (!logits.length) {
+      rows.forEach((parts, index) => {
+        parts.row.classList.toggle("top", false);
+        parts.row.style.setProperty("--row-opacity", index === 0 ? "0.7" : "0.18");
+        parts.row.setAttribute("aria-label", index === 0 ? "loading next-token probabilities" : "");
+        text(parts.token, index === 0 ? "loading" : "");
+        parts.token.title = "";
+        parts.token.classList.remove("long");
+        parts.fill.style.width = "0%";
+        text(parts.prob, "");
+      });
+      return;
+    }
+
+    rows.forEach((parts, index) => {
+      const item = logits[index];
+      if (!item) {
+        parts.row.classList.toggle("top", false);
+        parts.row.style.setProperty("--row-opacity", "0.18");
+        parts.row.setAttribute("aria-label", "");
+        text(parts.token, "");
+        parts.token.title = "";
+        parts.token.classList.remove("long");
+        parts.fill.style.width = "0%";
+        text(parts.prob, "");
+        return;
+      }
+
+      const probability = item.prob || 0;
+      parts.row.classList.toggle("top", index === 0);
+      parts.row.style.setProperty("--row-opacity", "1");
+      parts.row.setAttribute("aria-label", `${item.token}, probability ${probability.toFixed(2)}`);
+      parts.token.title = item.token;
+      parts.token.classList.toggle("long", String(item.token || "").length > 6);
+      text(parts.token, displayToken(item.token));
+      parts.fill.style.width = `${Math.max(1, (probability / maxProb) * 100)}%`;
+      text(parts.prob, probability.toFixed(2));
     });
   }
 
-  function renderFeatures(passIdx) {
-    clear(els.features);
-    const traceFeatures = visibleFeaturesForTrace(state.trace);
+  function featureSignature(features) {
+    return features
+      .map(feature => `${feature.slug || feature.label || "feature"}:${feature.label || ""}:${feature.category || ""}`)
+      .join("|");
+  }
 
-    if (!traceFeatures.length) {
+  function buildFeatureRows(features) {
+    clear(els.features);
+    state.featureRows = [];
+
+    if (!features.length) {
       const row = document.createElement("div");
       row.className = "feature-row";
       row.setAttribute("role", "listitem");
@@ -1946,26 +2002,57 @@
       text(name, "nothing labeled");
       row.appendChild(name);
       els.features.appendChild(row);
+      state.featureRows.push({ feature: null, row, name, cells: [] });
       return;
     }
 
-    traceFeatures.slice(0, 7).forEach(feature => {
-      const category = feature.category || "unlabeled";
-      const activePasses = new Set(feature.active_passes || []);
+    features.slice(0, 7).forEach(feature => {
       const row = document.createElement("div");
       row.className = "feature-row";
       row.setAttribute("role", "listitem");
-      row.setAttribute("aria-label", `${featureLabel(feature)}, ${category}, SAE correlation by pass`);
+      row.setAttribute("aria-label", `${featureLabel(feature)}, ${feature.category || "unlabeled"}, SAE correlation by pass`);
 
       const name = document.createElement("div");
-      name.className = `feature-name ${category}`;
-      name.title = feature.label || feature.slug || "";
-      text(name, featureLabel(feature));
       row.appendChild(name);
 
+      const cells = [];
       for (let i = 0; i < N_PASSES; i += 1) {
         const cell = document.createElement("div");
-        cell.className = `feature-cell ${category}`;
+        cell.setAttribute("aria-hidden", "true");
+        row.appendChild(cell);
+        cells.push(cell);
+      }
+
+      els.features.appendChild(row);
+      state.featureRows.push({ feature, row, name, cells });
+    });
+  }
+
+  function renderFeatures(passIdx) {
+    const traceFeatures = visibleFeaturesForTrace(state.trace);
+    const signature = featureSignature(traceFeatures);
+
+    if (state.featureSignature !== signature || !state.featureRows.length) {
+      state.featureSignature = signature;
+      buildFeatureRows(traceFeatures);
+    }
+
+    if (!traceFeatures.length) {
+      return;
+    }
+
+    state.featureRows.forEach(parts => {
+      const feature = parts.feature;
+      if (!feature) return;
+      const category = feature.category || "unlabeled";
+      const activePasses = new Set(feature.active_passes || []);
+      parts.row.setAttribute("aria-label", `${featureLabel(feature)}, ${category}, SAE correlation by pass`);
+      parts.name.className = `feature-name ${category}`;
+      parts.name.title = feature.label || feature.slug || "";
+      text(parts.name, featureLabel(feature));
+
+      for (let i = 0; i < N_PASSES; i += 1) {
+        const cell = parts.cells[i];
         const rawStrength = Number(asArray(feature.strengths)[i]);
         const hasStrength = Number.isFinite(rawStrength);
         const strength = hasStrength ? Math.max(0, Math.min(1, rawStrength)) : 0;
@@ -1974,16 +2061,13 @@
           : activePasses.has(i);
         const heat = hasStrength ? Math.min(0.92, 0.52 + strength * 0.34) : (isActive ? 0.82 : 0);
         cell.style.setProperty("--heat", heat.toFixed(3));
+        cell.className = `feature-cell ${category}`;
         cell.classList.toggle("active", isActive);
         cell.classList.toggle("current", i === passIdx);
         cell.title = hasStrength
           ? `pass ${i + 1}: SAE correlation ${strength.toFixed(2)}`
           : `pass ${i + 1}${isActive ? ": active" : ""}`;
-        cell.setAttribute("aria-hidden", "true");
-        row.appendChild(cell);
       }
-
-      els.features.appendChild(row);
     });
   }
 
@@ -2005,7 +2089,6 @@
   }
 
   function renderChecks(passIdx, valid) {
-    clear(els.checks);
     const pass = currentPass();
     const traceChecks = asArray(pass?.checks);
     const checks = traceChecks.length
@@ -2017,11 +2100,21 @@
           { label: "structure", on: passIdx >= 3, wait: passIdx >= 1 && passIdx < 3 },
           { label: "RDKit-valid", on: valid, wait: !valid && passIdx >= 4 }
         ];
-    checks.forEach(check => {
+
+    while (state.checkItems.length < checks.length) {
       const item = document.createElement("span");
+      els.checks.appendChild(item);
+      state.checkItems.push(item);
+    }
+    while (state.checkItems.length > checks.length) {
+      const item = state.checkItems.pop();
+      item?.remove();
+    }
+
+    checks.forEach((check, index) => {
+      const item = state.checkItems[index];
       item.className = check.on ? "on" : check.wait ? "wait" : "";
       text(item, check.label);
-      els.checks.appendChild(item);
     });
   }
 
